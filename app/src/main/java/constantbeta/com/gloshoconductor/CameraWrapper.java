@@ -15,6 +15,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -22,6 +23,10 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,10 +57,14 @@ class CameraWrapper
     private static final int TAKE_PICTURE = 1;
     private int state = PREVIEW;
 
+    // TODO -- temp
+    private final File file;
+
     CameraWrapper(CameraFragment fragment, Handler backgroundHandler)
     {
         this.fragment = fragment;
         this.backgroundHandler = backgroundHandler;
+        this.file = new File(fragment.getActivity().getExternalFilesDir(null), "pic.yuv");
     }
 
     void openCamera()
@@ -119,7 +128,7 @@ class CameraWrapper
         Log.d(TAG, "exiting closeCamera");
     }
 
-    private void setupOutputs(Handler backgroundHandler)
+    private void setupOutputs(final Handler backgroundHandler)
     {
         Log.d(TAG, "entering setupOutputs");
         try
@@ -141,18 +150,18 @@ class CameraWrapper
                 }
 
                 final Size largest = Collections.max(
-                        Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)),
+                        Arrays.asList(map.getOutputSizes(ImageFormat.YV12)),
                         new CompareSizesByArea());
+                Log.d(TAG, "Image size: " + largest.getWidth() + "x" + largest.getHeight());
 
-                imageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.YUV_420_888, 1);
+                imageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.YV12, 2);
                 imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener()
                 {
                     @Override
                     public void onImageAvailable(ImageReader reader)
                     {
                         Log.d(TAG, "onImageAvailable");
-                        reader.acquireNextImage().close();
-                        // TODO -- post something to the background handler
+                        backgroundHandler.post(new ImageSaver(reader.acquireLatestImage(), file));
                     }
                 }, backgroundHandler);
 
@@ -491,6 +500,66 @@ class CameraWrapper
         {
             Log.e(TAG, "Couldn't find any suitable preview size");
             return choices[0];
+        }
+    }
+
+    private class ImageSaver implements Runnable
+    {
+        final Image image;
+        final File file;
+
+        ImageSaver(Image image, File file)
+        {
+            this.image = image;
+            this.file = file;
+        }
+
+        @Override
+        public void run()
+        {
+            final int THRESH = 100;
+            final ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            final byte[] bytes = new byte[buffer.remaining()];
+            final long startNanos = System.nanoTime();
+            for (int i = 0; i < buffer.remaining(); i += 8)
+            {
+                final long batch = buffer.getLong(buffer.position() + i);
+                bytes[i] = (batch & 0xFF) > THRESH ? (byte)255 : 0;
+                bytes[i + 1] = ((batch >> 8) & 0xFF) > THRESH ? (byte)255 : 0;
+                bytes[i + 2] = ((batch >> 16) & 0xFF) > THRESH ? (byte)255 : 0;
+                bytes[i + 3] = ((batch >> 24) & 0xFF) > THRESH ? (byte)255 : 0;
+                bytes[i + 4] = ((batch >> 32) & 0xFF) > THRESH ? (byte)255 : 0;
+                bytes[i + 5] = ((batch >> 40) & 0xFF) > THRESH ? (byte)255 : 0;
+                bytes[i + 6] = ((batch >> 48) & 0xFF) > THRESH ? (byte)255 : 0;
+                bytes[i + 7] = ((batch >> 54) & 0xFF) > THRESH ? (byte)255 : 0;
+            }
+            Log.d(TAG, "image processing micros: " + (System.nanoTime() - startNanos) / 1000);
+
+            FileOutputStream output = null;
+            try
+            {
+                output = new FileOutputStream(file);
+                output.write(bytes);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                image.close();
+                if (null != output)
+                {
+                    try
+                    {
+                        output.close();
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }

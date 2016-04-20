@@ -48,7 +48,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener
     {
         super.onActivityCreated(savedInstanceState);
         cameraPermissions = new CameraPermissions(this);
-        cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
     }
 
     @Override
@@ -57,6 +56,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         Log.d(TAG, "entering onResume");
         super.onResume();
         backgroundThread.start();
+        cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
         if (textureView.isAvailable())
         {
             openCamera();
