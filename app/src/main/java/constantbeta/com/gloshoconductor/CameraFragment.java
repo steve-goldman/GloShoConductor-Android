@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -12,7 +13,11 @@ import android.view.ViewGroup;
 
 public class CameraFragment extends Fragment implements View.OnClickListener
 {
+    private static final String TAG = "CameraFragment";
+
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
+
+    private CameraWrapper cameraWrapper;
 
     private CameraPermissions cameraPermissions;
 
@@ -43,11 +48,13 @@ public class CameraFragment extends Fragment implements View.OnClickListener
     {
         super.onActivityCreated(savedInstanceState);
         cameraPermissions = new CameraPermissions(this);
+        cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
     }
 
     @Override
     public void onResume()
     {
+        Log.d(TAG, "entering onResume");
         super.onResume();
         backgroundThread.start();
         if (textureView.isAvailable())
@@ -58,14 +65,17 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         {
             textureView.setSurfaceTextureListener(surfaceTextureListener);
         }
+        Log.d(TAG, "exiting onResume");
     }
 
     @Override
     public void onPause()
     {
+        Log.d(TAG, "entering onPause");
         super.onPause();
-        // TODO -- close camera
+        cameraWrapper.closeCamera();
         backgroundThread.stop();
+        Log.d(TAG, "exiting onPause");
     }
 
     @Override
@@ -80,6 +90,11 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         {
             cameraPermissions.onRequestPermissionsResult(grantResults);
         }
+    }
+
+    public TextureView getTextureView()
+    {
+        return textureView;
     }
 
     private final TextureView.SurfaceTextureListener surfaceTextureListener
@@ -113,7 +128,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener
     {
         if (cameraPermissions.has())
         {
-            // TODO
+            cameraWrapper.openCamera();
         }
         else
         {
