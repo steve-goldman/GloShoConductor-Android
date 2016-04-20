@@ -13,7 +13,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ImageReader;
@@ -47,6 +46,11 @@ class CameraWrapper
     private CameraCaptureSession captureSession;
     private CameraDevice device;
     private Size previewSize;
+    private CaptureRequest previewRequest;
+
+    private static final int PREVIEW = 0;
+    private static final int TAKE_PICTURE = 1;
+    private int state = PREVIEW;
 
     CameraWrapper(CameraFragment fragment, Handler backgroundHandler)
     {
@@ -146,6 +150,8 @@ class CameraWrapper
                     @Override
                     public void onImageAvailable(ImageReader reader)
                     {
+                        Log.d(TAG, "onImageAvailable");
+                        reader.acquireNextImage().close();
                         // TODO -- post something to the background handler
                     }
                 }, backgroundHandler);
@@ -275,7 +281,7 @@ class CameraWrapper
             device.createCaptureSession(Arrays.asList(surface, imageReader.getSurface()), new CameraCaptureSession.StateCallback()
                 {
                     @Override
-                    public void onConfigured(CameraCaptureSession captureSession)
+                    public void onConfigured(@NonNull CameraCaptureSession captureSession)
                     {
                         // check if camera is already closed
                         if (null == device)
@@ -289,7 +295,7 @@ class CameraWrapper
                         {
                             // TODO -- autofocus?
 
-                            final CaptureRequest previewRequest = previewRequestBuilder.build();
+                            previewRequest = previewRequestBuilder.build();
                             captureSession.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler);
                         }
                         catch (CameraAccessException e)
@@ -299,7 +305,7 @@ class CameraWrapper
                     }
 
                     @Override
-                    public void onConfigureFailed(CameraCaptureSession session)
+                    public void onConfigureFailed(@NonNull CameraCaptureSession session)
                     {
 
                     }
@@ -311,11 +317,74 @@ class CameraWrapper
         }
     }
 
+    void takePicture()
+    {
+        Log.d(TAG, "takePicture called");
+        state = TAKE_PICTURE;
+    }
+
+    private void captureStillPicture()
+    {
+        try
+        {
+            final Activity activity = fragment.getActivity();
+            if (null == activity || null == device)
+            {
+                return;
+            }
+
+            final CaptureRequest.Builder captureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            captureBuilder.addTarget(imageReader.getSurface());
+
+            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
+                               CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+
+            captureSession.stopRepeating();
+            captureSession.capture(captureBuilder.build(), new CameraCaptureSession.CaptureCallback()
+                {
+                    @Override
+                    public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                                                   @NonNull CaptureRequest request,
+                                                   @NonNull TotalCaptureResult result)
+                    {
+                        Log.d(TAG, "onCaptureCompleted");
+                        try
+                        {
+                            captureSession.setRepeatingRequest(previewRequest,
+                                                               captureCallback,
+                                                               backgroundHandler);
+                        }
+                        catch (CameraAccessException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }, null);
+        }
+        catch (CameraAccessException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     private final CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback()
     {
-        private void process(CaptureResult result)
+        private void process()
         {
-            // TODO
+            switch (state)
+            {
+                case PREVIEW:
+                {
+                    // no-op
+                    break;
+                }
+                case TAKE_PICTURE:
+                {
+                    state = PREVIEW;
+                    captureStillPicture();
+                    break;
+                }
+            }
         }
 
         @Override
@@ -323,14 +392,14 @@ class CameraWrapper
                                        @NonNull CaptureRequest request,
                                        @NonNull TotalCaptureResult result)
         {
-            process(result);
+            process();
         }
     };
 
     private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback()
     {
         @Override
-        public void onOpened(CameraDevice device)
+        public void onOpened(@NonNull CameraDevice device)
         {
             cameraLock.release();
             CameraWrapper.this.device = device;
@@ -338,7 +407,7 @@ class CameraWrapper
         }
 
         @Override
-        public void onDisconnected(CameraDevice device)
+        public void onDisconnected(@NonNull CameraDevice device)
         {
             cameraLock.release();
             device.close();
@@ -346,7 +415,7 @@ class CameraWrapper
         }
 
         @Override
-        public void onError(CameraDevice device, int error)
+        public void onError(@NonNull CameraDevice device, int error)
         {
             cameraLock.release();
             device.close();

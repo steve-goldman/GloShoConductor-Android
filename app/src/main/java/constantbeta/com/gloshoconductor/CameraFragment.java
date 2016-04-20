@@ -81,6 +81,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v)
     {
+        cameraWrapper.takePicture();
     }
 
     @Override
