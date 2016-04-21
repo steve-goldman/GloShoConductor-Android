@@ -16,6 +16,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener
 
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
+    private final WebSocketWrapper webSocketWrapper = new WebSocketWrapper("ws://192.168.0.8:8080");
+
     private CameraWrapper cameraWrapper;
 
     private CameraPermissions cameraPermissions;
@@ -57,6 +59,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         backgroundThread.start();
         cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
         openCamera();
+        webSocketWrapper.open();
         Log.d(TAG, "exiting onResume");
     }
 
@@ -66,6 +69,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         Log.d(TAG, "entering onPause");
         super.onPause();
         cameraWrapper.closeCamera();
+        webSocketWrapper.close();
         backgroundThread.stop();
         Log.d(TAG, "exiting onPause");
     }
