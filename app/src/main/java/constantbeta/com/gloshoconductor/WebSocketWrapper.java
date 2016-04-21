@@ -14,6 +14,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
 {
     interface Listener
     {
+        void onConnected();
         void onLoggedIn();
     }
 
@@ -66,6 +67,12 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         this.webSocket = webSocket;
         webSocket.setStringCallback(this);
 
+        listener.onConnected();
+    }
+
+    void login()
+    {
+        Log.d(TAG, "logging in");
         try
         {
             final Message message = new Message("conductor-login");
