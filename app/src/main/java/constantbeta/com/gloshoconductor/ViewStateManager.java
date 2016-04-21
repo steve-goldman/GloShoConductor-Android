@@ -12,9 +12,10 @@ public class ViewStateManager
 {
     public class States
     {
-        public static final int CONNECTING = 1;
-        public static final int LOGGING_IN = 2;
-        public static final int READY_TO_START = 3;
+        public static final int CONNECTING            = 1;
+        public static final int UNABLE_TO_CONNECT     = 2;
+        public static final int LOGGING_IN            = 3;
+        public static final int READY_TO_START        = 4;
     }
 
     private static ViewStateManager instance = new ViewStateManager();
@@ -30,9 +31,10 @@ public class ViewStateManager
 
     public void init(View view)
     {
-        connectingTextView.view = view.findViewById(R.id.connecting_text_view);
-        loggingInTextView.view = view.findViewById(R.id.logging_in_text_view);
-        readyButton.view = view.findViewById(R.id.ready_to_start_button);
+        connectingTextView.view      = view.findViewById(R.id.connecting_text_view);
+        unableToConnectTextView.view = view.findViewById(R.id.unable_to_connect_text_view);
+        loggingInTextView.view       = view.findViewById(R.id.logging_in_text_view);
+        readyButton.view             = view.findViewById(R.id.ready_to_start_button);
         disappearAll();
     }
 
@@ -64,16 +66,18 @@ public class ViewStateManager
 
     private static final String TAG = "ViewStateManager";
     private static final List<ViewHolder> allViewHolders = new ArrayList<>();
-    private static final ViewHolder connectingTextView = new ViewHolder();
-    private static final ViewHolder loggingInTextView = new ViewHolder();
-    private static final ViewHolder readyButton = new ViewHolder();
+    private static final ViewHolder connectingTextView      = new ViewHolder();
+    private static final ViewHolder unableToConnectTextView = new ViewHolder();
+    private static final ViewHolder loggingInTextView       = new ViewHolder();
+    private static final ViewHolder readyButton             = new ViewHolder();
 
     private static final Map<Integer, ViewHolder[]> OnViews = new HashMap<>();
     static
     {
-        OnViews.put(States.CONNECTING, new ViewHolder[] { connectingTextView });
-        OnViews.put(States.LOGGING_IN, new ViewHolder[] { loggingInTextView });
-        OnViews.put(States.READY_TO_START, new ViewHolder[] { readyButton });
+        OnViews.put(States.CONNECTING,        new ViewHolder[] { connectingTextView });
+        OnViews.put(States.UNABLE_TO_CONNECT, new ViewHolder[] { unableToConnectTextView });
+        OnViews.put(States.LOGGING_IN,        new ViewHolder[] { loggingInTextView });
+        OnViews.put(States.READY_TO_START,    new ViewHolder[] { readyButton });
     }
 
     private void disappearAll()

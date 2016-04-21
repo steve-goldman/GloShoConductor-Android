@@ -15,6 +15,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
     interface Listener
     {
         void onConnected();
+        void onUnableToConnect();
         void onLoggedIn();
     }
 
@@ -61,6 +62,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         if (null != ex)
         {
             ex.printStackTrace();
+            listener.onUnableToConnect();
             return;
         }
 

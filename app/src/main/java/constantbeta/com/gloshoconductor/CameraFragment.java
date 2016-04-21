@@ -124,6 +124,20 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     }
 
     @Override
+    public void onUnableToConnect()
+    {
+        Log.d(TAG, "listener notified unable to connect");
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                viewStateManager.setState(ViewStateManager.States.UNABLE_TO_CONNECT);
+            }
+        });
+    }
+
+    @Override
     public void onLoggedIn()
     {
         Log.d(TAG, "listener notified logged in");
