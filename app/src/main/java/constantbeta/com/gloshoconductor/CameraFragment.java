@@ -4,7 +4,6 @@ package constantbeta.com.gloshoconductor;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -12,8 +11,6 @@ import android.view.ViewGroup;
 
 public class CameraFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener
 {
-    private static final String TAG = "CameraFragment";
-
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
     private final WebSocketWrapper webSocketWrapper = new WebSocketWrapper("ws://192.168.0.8:8080", this);
@@ -56,25 +53,21 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onResume()
     {
-        Log.d(TAG, "entering onResume");
         super.onResume();
         backgroundThread.start();
         cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
         openCamera();
         viewStateManager.setState(ViewStateManager.States.CONNECTING);
         webSocketWrapper.open();
-        Log.d(TAG, "exiting onResume");
     }
 
     @Override
     public void onPause()
     {
-        Log.d(TAG, "entering onPause");
         super.onPause();
         cameraWrapper.closeCamera();
         webSocketWrapper.close();
         backgroundThread.stop();
-        Log.d(TAG, "exiting onPause");
     }
 
     @Override
@@ -113,7 +106,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onConnected()
     {
-        Log.d(TAG, "listener notified connected");
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
@@ -128,7 +120,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onUnableToConnect()
     {
-        Log.d(TAG, "listener notified unable to connect");
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
@@ -142,7 +133,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onLoggedIn()
     {
-        Log.d(TAG, "listener notified logged in");
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
@@ -156,7 +146,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onTakePicture()
     {
-        Log.d(TAG, "listener notified take picture");
         getActivity().runOnUiThread(new Runnable()
         {
             @Override

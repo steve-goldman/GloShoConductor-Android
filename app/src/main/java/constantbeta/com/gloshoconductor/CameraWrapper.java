@@ -82,7 +82,6 @@ class CameraWrapper
 
     private void openCamera()
     {
-        Log.d(TAG, "entering openCamera");
         final Activity activity = fragment.getActivity();
         manager = (CameraManager)activity.getSystemService(Context.CAMERA_SERVICE);
 
@@ -105,12 +104,10 @@ class CameraWrapper
         {
             throw new RuntimeException("interrupted while trying to lock camera opening");
         }
-        Log.d(TAG, "exiting openCamera");
     }
 
     void closeCamera()
     {
-        Log.d(TAG, "entering closeCamera");
         try
         {
             cameraLock.acquire();
@@ -138,7 +135,6 @@ class CameraWrapper
         {
             cameraLock.release();
         }
-        Log.d(TAG, "exiting closeCamera");
     }
 
     private final TextureView.SurfaceTextureListener surfaceTextureListener
@@ -170,7 +166,6 @@ class CameraWrapper
 
     private void setupOutputs(final Handler backgroundHandler)
     {
-        Log.d(TAG, "entering setupOutputs");
         try
         {
             for (final String cameraId : manager.getCameraIdList())
@@ -200,7 +195,6 @@ class CameraWrapper
                     @Override
                     public void onImageAvailable(ImageReader reader)
                     {
-                        Log.d(TAG, "onImageAvailable");
                         backgroundHandler.post(new ImageSaver(reader.acquireLatestImage(), file));
                     }
                 }, backgroundHandler);
@@ -265,7 +259,6 @@ class CameraWrapper
                 */
                 this.cameraId = cameraId;
 
-                Log.d(TAG, "exiting setupOutputs success");
                 return;
             }
         }
@@ -273,7 +266,6 @@ class CameraWrapper
         {
             e.printStackTrace();
         }
-        Log.d(TAG, "exiting setupOutputs failure");
     }
 
     /**
@@ -368,7 +360,6 @@ class CameraWrapper
 
     void takePicture()
     {
-        Log.d(TAG, "takePicture called");
         state = TAKE_PICTURE;
     }
 
@@ -396,7 +387,6 @@ class CameraWrapper
                                                    @NonNull CaptureRequest request,
                                                    @NonNull TotalCaptureResult result)
                     {
-                        Log.d(TAG, "onCaptureCompleted");
                         try
                         {
                             captureSession.setRepeatingRequest(previewRequest,
