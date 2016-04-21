@@ -2,6 +2,7 @@ package constantbeta.com.gloshoconductor;
 
 
 import android.app.Fragment;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -9,7 +10,10 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class CameraFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener
+import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessor;
+import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessorFactory;
+
+public class CameraFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener, CameraWrapper.Listener
 {
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
@@ -21,6 +25,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
 
     private TextureView textureView;
     private final ViewStateManager viewStateManager = ViewStateManager.get();
+
+    private ImageProcessor imageProcessor;
 
     // package scope
     static CameraFragment newInstance()
@@ -55,9 +61,9 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     {
         super.onResume();
         backgroundThread.start();
-        cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
+        cameraWrapper = new CameraWrapper(this, this, backgroundThread.handler());
         openCamera();
-        viewStateManager.setState(ViewStateManager.States.CONNECTING);
+        setViewState(ViewStateManager.States.CONNECTING);
         webSocketWrapper.open();
     }
 
@@ -73,7 +79,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onClick(View v)
     {
-        viewStateManager.setState(ViewStateManager.States.WAITING_FOR_COMMAND);
+        setViewState(ViewStateManager.States.WAITING_FOR_COMMAND);
         webSocketWrapper.sendReady();
     }
 
@@ -106,54 +112,58 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onConnected()
     {
-        getActivity().runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                viewStateManager.setState(ViewStateManager.States.LOGGING_IN);
-            }
-        });
+        setViewState(ViewStateManager.States.LOGGING_IN);
         webSocketWrapper.login();
     }
 
     @Override
     public void onUnableToConnect()
     {
-        getActivity().runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                viewStateManager.setState(ViewStateManager.States.UNABLE_TO_CONNECT);
-            }
-        });
+        setViewState(ViewStateManager.States.UNABLE_TO_CONNECT);
     }
 
     @Override
     public void onLoggedIn()
     {
-        getActivity().runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                viewStateManager.setState(ViewStateManager.States.READY_TO_START);
-            }
-        });
+        setViewState((ViewStateManager.States.READY_TO_START));
     }
 
     @Override
     public void onTakePicture()
+    {
+        setViewState(ViewStateManager.States.TAKING_PICTURE);
+        cameraWrapper.takePicture();
+    }
+
+    @Override
+    public void onPictureSent()
+    {
+        setViewState(ViewStateManager.States.READY_TO_START);
+        // TODO -- show toast?
+    }
+
+    @Override
+    public void onCameraOpened()
+    {
+        imageProcessor = ImageProcessorFactory.create(getString(R.string.image_processor_type), cameraWrapper.getImageSize());
+    }
+
+    @Override
+    public void onPictureTaken(Image image)
+    {
+        setViewState(ViewStateManager.States.SENDING_PICTURE);
+        webSocketWrapper.sendProcessedImage(imageProcessor.process(image));
+    }
+
+    private void setViewState(final int state)
     {
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
-                viewStateManager.setState(ViewStateManager.States.TAKING_PICTURE);
+                viewStateManager.setState(state);
             }
         });
-        cameraWrapper.takePicture();
     }
 }

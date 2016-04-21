@@ -25,9 +25,6 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,8 +36,15 @@ import java.util.concurrent.TimeUnit;
 // package scope
 class CameraWrapper
 {
+    interface Listener
+    {
+        void onCameraOpened();
+        void onPictureTaken(Image image);
+    }
+
     private static final String TAG = "CameraWrapper";
 
+    private final Listener listener;
     private final CameraFragment fragment;
     private final Handler backgroundHandler;
     private final Semaphore cameraLock = new Semaphore(1);
@@ -51,6 +55,7 @@ class CameraWrapper
 
     private CameraCaptureSession captureSession;
     private CameraDevice device;
+    private Size imageSize;
     private Size previewSize;
     private CaptureRequest previewRequest;
 
@@ -61,8 +66,9 @@ class CameraWrapper
     // TODO -- temp
     private final File file;
 
-    CameraWrapper(CameraFragment fragment, Handler backgroundHandler)
+    CameraWrapper(Listener listener, CameraFragment fragment, Handler backgroundHandler)
     {
+        this.listener = listener;
         this.fragment = fragment;
         this.backgroundHandler = backgroundHandler;
         this.file = new File(fragment.getActivity().getExternalFilesDir(null), "pic.yuv");
@@ -104,6 +110,8 @@ class CameraWrapper
         {
             throw new RuntimeException("interrupted while trying to lock camera opening");
         }
+
+        listener.onCameraOpened();
     }
 
     void closeCamera()
@@ -184,18 +192,27 @@ class CameraWrapper
                     continue;
                 }
 
-                final Size largest = Collections.max(
+                imageSize = Collections.max(
                         Arrays.asList(map.getOutputSizes(ImageFormat.YV12)),
                         new CompareSizesByArea());
-                Log.d(TAG, "Image size: " + largest.getWidth() + "x" + largest.getHeight());
+                Log.d(TAG, "Image size: " + imageSize.getWidth() + "x" + imageSize.getHeight());
 
-                imageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.YV12, 2);
+                imageReader = ImageReader.newInstance(imageSize.getWidth(), imageSize.getHeight(), ImageFormat.YV12, 2);
                 imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener()
                 {
                     @Override
-                    public void onImageAvailable(ImageReader reader)
+                    public void onImageAvailable(final ImageReader reader)
                     {
-                        backgroundHandler.post(new ImageSaver(reader.acquireLatestImage(), file));
+                        backgroundHandler.post(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    final Image image = reader.acquireLatestImage();
+                                    listener.onPictureTaken(image);
+                                    image.close();
+                                }
+                            });
                     }
                 }, backgroundHandler);
 
@@ -244,7 +261,7 @@ class CameraWrapper
                 // garbage capture data.
                 previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
                                                  rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth,
-                                                 maxPreviewHeight, largest);
+                                                 maxPreviewHeight, imageSize);
 
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
                 /*
@@ -361,6 +378,11 @@ class CameraWrapper
     void takePicture()
     {
         state = TAKE_PICTURE;
+    }
+
+    Size getImageSize()
+    {
+        return imageSize;
     }
 
     private void captureStillPicture()
@@ -530,66 +552,6 @@ class CameraWrapper
         {
             Log.e(TAG, "Couldn't find any suitable preview size");
             return choices[0];
-        }
-    }
-
-    private class ImageSaver implements Runnable
-    {
-        final Image image;
-        final File file;
-
-        ImageSaver(Image image, File file)
-        {
-            this.image = image;
-            this.file = file;
-        }
-
-        @Override
-        public void run()
-        {
-            final int THRESH = 100;
-            final ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            final byte[] bytes = new byte[buffer.remaining()];
-            final long startNanos = System.nanoTime();
-            for (int i = 0; i < buffer.remaining(); i += 8)
-            {
-                final long batch = buffer.getLong(buffer.position() + i);
-                bytes[i] = (batch & 0xFF) > THRESH ? (byte)255 : 0;
-                bytes[i + 1] = ((batch >> 8) & 0xFF) > THRESH ? (byte)255 : 0;
-                bytes[i + 2] = ((batch >> 16) & 0xFF) > THRESH ? (byte)255 : 0;
-                bytes[i + 3] = ((batch >> 24) & 0xFF) > THRESH ? (byte)255 : 0;
-                bytes[i + 4] = ((batch >> 32) & 0xFF) > THRESH ? (byte)255 : 0;
-                bytes[i + 5] = ((batch >> 40) & 0xFF) > THRESH ? (byte)255 : 0;
-                bytes[i + 6] = ((batch >> 48) & 0xFF) > THRESH ? (byte)255 : 0;
-                bytes[i + 7] = ((batch >> 54) & 0xFF) > THRESH ? (byte)255 : 0;
-            }
-            Log.d(TAG, "image processing micros: " + (System.nanoTime() - startNanos) / 1000);
-
-            FileOutputStream output = null;
-            try
-            {
-                output = new FileOutputStream(file);
-                output.write(bytes);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                image.close();
-                if (null != output)
-                {
-                    try
-                    {
-                        output.close();
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
         }
     }
 }

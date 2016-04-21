@@ -2,6 +2,7 @@ package constantbeta.com.gloshoconductor;
 
 import android.util.Log;
 
+import com.koushikdutta.async.callback.WritableCallback;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
@@ -18,6 +19,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         void onUnableToConnect();
         void onLoggedIn();
         void onTakePicture();
+        void onPictureSent();
     }
 
     private static final String TAG = "WebSocketWrapper";
@@ -68,6 +70,21 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         {
             e.printStackTrace();
         }
+    }
+
+    void sendProcessedImage(byte[] bytes)
+    {
+        Log.d(TAG, "sending processed image");
+        webSocket.send(bytes);
+        webSocket.setWriteableCallback(new WritableCallback()
+        {
+            @Override
+            public void onWriteable()
+            {
+                webSocket.setWriteableCallback(null);
+                listener.onPictureSent();
+            }
+        });
     }
 
     @Override
