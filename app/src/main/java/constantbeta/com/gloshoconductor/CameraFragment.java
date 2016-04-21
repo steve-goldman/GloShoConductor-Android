@@ -2,7 +2,6 @@ package constantbeta.com.gloshoconductor;
 
 
 import android.app.Fragment;
-import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -57,14 +56,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         super.onResume();
         backgroundThread.start();
         cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
-        if (textureView.isAvailable())
-        {
-            openCamera();
-        }
-        else
-        {
-            textureView.setSurfaceTextureListener(surfaceTextureListener);
-        }
+        openCamera();
         Log.d(TAG, "exiting onResume");
     }
 
@@ -98,38 +90,11 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         return textureView;
     }
 
-    private final TextureView.SurfaceTextureListener surfaceTextureListener
-            = new TextureView.SurfaceTextureListener()
-    {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
-        {
-            openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height)
-        {
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface)
-        {
-            return true;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface)
-        {
-        }
-    };
-
     private void openCamera()
     {
         if (cameraPermissions.has())
         {
-            cameraWrapper.openCamera();
+            cameraWrapper.open();
         }
         else
         {

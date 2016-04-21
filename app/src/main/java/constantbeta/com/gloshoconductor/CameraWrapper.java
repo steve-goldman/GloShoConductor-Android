@@ -22,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
+import android.view.TextureView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,7 +68,19 @@ class CameraWrapper
         this.file = new File(fragment.getActivity().getExternalFilesDir(null), "pic.yuv");
     }
 
-    void openCamera()
+    void open()
+    {
+        if (fragment.getTextureView().isAvailable())
+        {
+            openCamera();
+        }
+        else
+        {
+            fragment.getTextureView().setSurfaceTextureListener(surfaceTextureListener);
+        }
+    }
+
+    private void openCamera()
     {
         Log.d(TAG, "entering openCamera");
         final Activity activity = fragment.getActivity();
@@ -127,6 +140,33 @@ class CameraWrapper
         }
         Log.d(TAG, "exiting closeCamera");
     }
+
+    private final TextureView.SurfaceTextureListener surfaceTextureListener
+            = new TextureView.SurfaceTextureListener()
+    {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
+        {
+            openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height)
+        {
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface)
+        {
+            return true;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface)
+        {
+        }
+    };
 
     private void setupOutputs(final Handler backgroundHandler)
     {
