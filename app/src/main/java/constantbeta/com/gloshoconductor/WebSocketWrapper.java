@@ -55,6 +55,20 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         }
     }
 
+    void sendReady()
+    {
+        Log.d(TAG, "sending ready");
+        try
+        {
+            final Message message = new Message("ready-for-command");
+            message.send(webSocket);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onCompleted(Exception ex, WebSocket webSocket)
     {

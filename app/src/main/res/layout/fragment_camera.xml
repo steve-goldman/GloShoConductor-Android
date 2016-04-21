@@ -55,4 +55,15 @@
         android:textColor="#ffffff"
         android:background="@android:color/black"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/waiting_for_command_text"
+        android:id="@+id/waiting_for_command_text_view"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:background="@android:color/black"/>
+
 </RelativeLayout>

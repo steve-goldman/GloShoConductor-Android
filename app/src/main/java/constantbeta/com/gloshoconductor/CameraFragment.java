@@ -43,6 +43,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
         super.onViewCreated(view, savedInstanceState);
         textureView = (TextureView)view.findViewById(R.id.texture);
         viewStateManager.init(view);
+        view.findViewById(R.id.ready_to_start_button).setOnClickListener(this);
     }
 
     @Override
@@ -79,7 +80,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onClick(View v)
     {
-        cameraWrapper.takePicture();
+        viewStateManager.setState(ViewStateManager.States.WAITING_FOR_COMMAND);
+        webSocketWrapper.sendReady();
     }
 
     @Override
