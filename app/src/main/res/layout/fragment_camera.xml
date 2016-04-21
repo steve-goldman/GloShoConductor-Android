@@ -25,7 +25,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Connecting..."
+        android:text="@string/connecting_text"
         android:id="@+id/connecting_text_view"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="40dp"
@@ -36,7 +36,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logging in..."
+        android:text="@string/logging_in_text"
         android:id="@+id/logging_in_text_view"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="40dp"
@@ -47,7 +47,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Unable to connect..."
+        android:text="@string/unable_to_connect_text"
         android:id="@+id/unable_to_connect_text_view"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="40dp"

@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">GloSho Conductor</string>
+    <string name="connecting_text">Connecting...</string>
+    <string name="unable_to_connect_text">Unable to connect...</string>
+    <string name="logging_in_text">Logging in...</string>
     <string name="ready_to_start_button">Ready?</string>
 </resources>
