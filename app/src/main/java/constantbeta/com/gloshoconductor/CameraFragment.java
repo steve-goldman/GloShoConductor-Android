@@ -9,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 public class CameraFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener
 {
@@ -25,9 +23,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     private CameraPermissions cameraPermissions;
 
     private TextureView textureView;
-    private TextView connectingTextView;
-    private TextView loggingInTextView;
-    private Button readyButton;
+    private final ViewStateManager viewStateManager = ViewStateManager.get();
 
     // package scope
     static CameraFragment newInstance()
@@ -46,11 +42,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     {
         super.onViewCreated(view, savedInstanceState);
         textureView = (TextureView)view.findViewById(R.id.texture);
-        connectingTextView = (TextView)view.findViewById(R.id.connecting_text_view);
-        loggingInTextView = (TextView)view.findViewById(R.id.logging_in_text_view);
-        readyButton = (Button)view.findViewById(R.id.ready_to_start_button);
-        readyButton.setOnClickListener(this);
-        disappearViews();
+        viewStateManager.init(view);
     }
 
     @Override
@@ -68,7 +60,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
         backgroundThread.start();
         cameraWrapper = new CameraWrapper(this, backgroundThread.handler());
         openCamera();
-        connectingTextView.setVisibility(View.VISIBLE);
+        viewStateManager.setState(ViewStateManager.States.CONNECTING);
         webSocketWrapper.open();
         Log.d(TAG, "exiting onResume");
     }
@@ -81,7 +73,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
         cameraWrapper.closeCamera();
         webSocketWrapper.close();
         backgroundThread.stop();
-        disappearViews();
         Log.d(TAG, "exiting onPause");
     }
 
@@ -126,8 +117,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
             @Override
             public void run()
             {
-                connectingTextView.setVisibility(View.GONE);
-                loggingInTextView.setVisibility(View.VISIBLE);
+                viewStateManager.setState(ViewStateManager.States.LOGGING_IN);
             }
         });
         webSocketWrapper.login();
@@ -142,17 +132,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
             @Override
             public void run()
             {
-                loggingInTextView.setVisibility(View.GONE);
-                readyButton.setVisibility(View.VISIBLE);
+                viewStateManager.setState(ViewStateManager.States.READY_TO_START);
             }
         });
-    }
-
-    private void disappearViews()
-    {
-        for (final View v : new View[]{ connectingTextView, loggingInTextView, readyButton })
-        {
-            v.setVisibility(View.GONE);
-        }
     }
 }
