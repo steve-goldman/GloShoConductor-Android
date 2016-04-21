@@ -152,4 +152,19 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
             }
         });
     }
+
+    @Override
+    public void onTakePicture()
+    {
+        Log.d(TAG, "listener notified take picture");
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                viewStateManager.setState(ViewStateManager.States.TAKING_PICTURE);
+            }
+        });
+        cameraWrapper.takePicture();
+    }
 }

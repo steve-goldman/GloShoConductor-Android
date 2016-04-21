@@ -17,6 +17,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         void onConnected();
         void onUnableToConnect();
         void onLoggedIn();
+        void onTakePicture();
     }
 
     private static final String TAG = "WebSocketWrapper";
@@ -113,6 +114,10 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
             {
                 loggedIn = true;
                 listener.onLoggedIn();
+            }
+            else if ("take-picture".equals(messageType))
+            {
+                listener.onTakePicture();
             }
         }
         catch (JSONException e)
