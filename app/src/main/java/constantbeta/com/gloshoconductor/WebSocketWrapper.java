@@ -6,18 +6,29 @@ import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
 import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 // package scope
 class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebSocket.StringCallback
 {
+    interface Listener
+    {
+        void onLoggedIn();
+    }
+
     private static final String TAG = "WebSocketWrapper";
 
     private final String uri;
     private WebSocket webSocket;
+    private final Listener listener;
 
-    WebSocketWrapper(String uri)
+    private boolean loggedIn;
+
+    WebSocketWrapper(String uri, Listener listener)
     {
         this.uri = uri;
+        this.listener = listener;
     }
 
     void open()
@@ -33,6 +44,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
 
     void close()
     {
+        loggedIn = false;
         if (null != webSocket)
         {
             Log.d(TAG, "closing");
@@ -52,6 +64,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         }
 
         this.webSocket = webSocket;
+        webSocket.setStringCallback(this);
 
         try
         {
@@ -65,8 +78,23 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
     }
 
     @Override
-    public void onStringAvailable(String s)
+    public void onStringAvailable(String message)
     {
-        Log.d(TAG, "received: " + s);
+        Log.d(TAG, "received: " + message);
+        try
+        {
+            final JSONObject json = new JSONObject(new JSONTokener(message));
+            final String messageType = json.getString("messageType");
+
+            if ("conductor-logged-in".equals(messageType))
+            {
+                loggedIn = true;
+                listener.onLoggedIn();
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

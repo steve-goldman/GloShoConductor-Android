@@ -10,13 +10,13 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class CameraFragment extends Fragment implements View.OnClickListener
+public class CameraFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener
 {
     private static final String TAG = "CameraFragment";
 
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
-    private final WebSocketWrapper webSocketWrapper = new WebSocketWrapper("ws://192.168.0.8:8080");
+    private final WebSocketWrapper webSocketWrapper = new WebSocketWrapper("ws://192.168.0.8:8080", this);
 
     private CameraWrapper cameraWrapper;
 
@@ -104,5 +104,11 @@ public class CameraFragment extends Fragment implements View.OnClickListener
         {
             cameraPermissions.request();
         }
+    }
+
+    @Override
+    public void onLoggedIn()
+    {
+        Log.d(TAG, "listener notified log in");
     }
 }
