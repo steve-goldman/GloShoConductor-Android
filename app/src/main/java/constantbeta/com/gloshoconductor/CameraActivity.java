@@ -3,6 +3,7 @@ package constantbeta.com.gloshoconductor;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 public class CameraActivity extends Activity
 {
@@ -11,6 +12,7 @@ public class CameraActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (null == savedInstanceState)
         {
             getFragmentManager().beginTransaction()
