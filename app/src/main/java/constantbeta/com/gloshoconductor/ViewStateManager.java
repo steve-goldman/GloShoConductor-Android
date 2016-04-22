@@ -89,7 +89,7 @@ public class ViewStateManager
         OnViews.put(States.READY_TO_START,      new ViewHolder[] { readyButton });
         OnViews.put(States.WAITING_FOR_COMMAND, new ViewHolder[] { waitingForCommandTextView });
         OnViews.put(States.TAKING_PICTURE,      new ViewHolder[] { takingPictureTextView });
-        OnViews.put(States.SENDING_PICTURE,      new ViewHolder[] { sendingPictureTextView });
+        OnViews.put(States.SENDING_PICTURE,     new ViewHolder[] { sendingPictureTextView });
     }
 
     private void disappearAll()
