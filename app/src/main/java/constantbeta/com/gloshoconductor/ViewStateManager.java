@@ -2,6 +2,7 @@ package constantbeta.com.gloshoconductor;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ public class ViewStateManager
         waitingForCommandTextView.view = view.findViewById(R.id.waiting_for_command_text_view);
         takingPictureTextView.view     = view.findViewById(R.id.taking_picture_text_view);
         sendingPictureTextView.view    = view.findViewById(R.id.sending_picture_text_view);
+        playerCountTextView.view       = view.findViewById(R.id.player_count_text_view);
         disappearAll();
     }
 
@@ -58,6 +60,12 @@ public class ViewStateManager
         {
             Log.e(TAG, "invalid state: " + state);
         }
+    }
+
+    public void setPlayerCount(int playerCount)
+    {
+        ((TextView)playerCountTextView.view).setText(
+                playerCount + (playerCount == 1 ? " player" : " players"));
     }
 
     private static class ViewHolder
@@ -79,6 +87,7 @@ public class ViewStateManager
     private static final ViewHolder waitingForCommandTextView = new ViewHolder();
     private static final ViewHolder takingPictureTextView     = new ViewHolder();
     private static final ViewHolder sendingPictureTextView    = new ViewHolder();
+    private static final ViewHolder playerCountTextView       = new ViewHolder();
 
     private static final Map<Integer, ViewHolder[]> OnViews = new HashMap<>();
     static
@@ -86,7 +95,7 @@ public class ViewStateManager
         OnViews.put(States.CONNECTING,          new ViewHolder[] { connectingTextView });
         OnViews.put(States.UNABLE_TO_CONNECT,   new ViewHolder[] { unableToConnectTextView });
         OnViews.put(States.LOGGING_IN,          new ViewHolder[] { loggingInTextView });
-        OnViews.put(States.READY_TO_START,      new ViewHolder[] { readyButton });
+        OnViews.put(States.READY_TO_START,      new ViewHolder[] { readyButton, playerCountTextView });
         OnViews.put(States.WAITING_FOR_COMMAND, new ViewHolder[] { waitingForCommandTextView });
         OnViews.put(States.TAKING_PICTURE,      new ViewHolder[] { takingPictureTextView });
         OnViews.put(States.SENDING_PICTURE,     new ViewHolder[] { sendingPictureTextView });

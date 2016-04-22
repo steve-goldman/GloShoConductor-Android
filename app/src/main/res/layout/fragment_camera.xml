@@ -25,6 +25,17 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="0 players"
+        android:id="@+id/player_count_text_view"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:background="@android:color/black"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/connecting_text"
         android:id="@+id/connecting_text_view"
         android:layout_alignParentBottom="true"

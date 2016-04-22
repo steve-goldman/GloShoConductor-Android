@@ -158,6 +158,19 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     }
 
     @Override
+    public void onPlayerCountUpdated(final int playerCount)
+    {
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                viewStateManager.setPlayerCount(playerCount);
+            }
+        });
+    }
+
+    @Override
     public void onCameraOpened()
     {
         imageProcessor = ImageProcessorFactory.create(imageProcessorType, cameraWrapper.getImageSize());
