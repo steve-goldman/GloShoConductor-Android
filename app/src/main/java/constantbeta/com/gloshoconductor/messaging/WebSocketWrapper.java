@@ -1,4 +1,4 @@
-package constantbeta.com.gloshoconductor;
+package constantbeta.com.gloshoconductor.messaging;
 
 import android.util.Log;
 import android.util.Size;
@@ -105,7 +105,7 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
         listener.onConnected();
     }
 
-    void login(Size size, String imageProcessorType)
+    public void login(Size size, String imageProcessorType)
     {
         Log.d(TAG, "logging in");
         try
