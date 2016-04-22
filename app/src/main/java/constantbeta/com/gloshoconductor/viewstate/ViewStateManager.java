@@ -1,4 +1,4 @@
-package constantbeta.com.gloshoconductor;
+package constantbeta.com.gloshoconductor.viewstate;
 
 import android.util.Log;
 import android.view.View;
@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import constantbeta.com.gloshoconductor.R;
 
 public class ViewStateManager
 {

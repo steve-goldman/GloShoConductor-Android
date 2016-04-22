@@ -17,6 +17,7 @@ import constantbeta.com.gloshoconductor.camera.CameraPermissions;
 import constantbeta.com.gloshoconductor.camera.CameraWrapper;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessor;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessorFactory;
+import constantbeta.com.gloshoconductor.viewstate.ViewStateManager;
 
 public class CameraFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener, CameraWrapper.Listener
 {
