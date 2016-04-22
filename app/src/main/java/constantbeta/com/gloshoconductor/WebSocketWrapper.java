@@ -113,7 +113,7 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
             final Message message = new Message("conductor-login")
                     .put("width", size.getWidth())
                     .put("height", size.getHeight())
-                    .put("image-processor-type", imageProcessorType);
+                    .put("imageProcessorType", imageProcessorType);
             message.send(webSocket);
         }
         catch (JSONException e)
