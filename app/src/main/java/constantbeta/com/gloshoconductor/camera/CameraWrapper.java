@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import constantbeta.com.gloshoconductor.CameraFragment;
+import constantbeta.com.gloshoconductor.ConductorFragment;
 
 public class CameraWrapper
 {
@@ -45,7 +45,7 @@ public class CameraWrapper
     private static final String TAG = "CameraWrapper";
 
     private final Listener listener;
-    private final CameraFragment fragment;
+    private final ConductorFragment fragment;
     private final Handler backgroundHandler;
     private final Semaphore cameraLock = new Semaphore(1);
 
@@ -63,7 +63,7 @@ public class CameraWrapper
     private static final int TAKE_PICTURE = 1;
     private int state = PREVIEW;
 
-    public CameraWrapper(Listener listener, CameraFragment fragment, Handler backgroundHandler)
+    public CameraWrapper(Listener listener, ConductorFragment fragment, Handler backgroundHandler)
     {
         this.listener = listener;
         this.fragment = fragment;

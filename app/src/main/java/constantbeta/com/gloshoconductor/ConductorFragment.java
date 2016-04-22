@@ -19,7 +19,7 @@ import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessor;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessorFactory;
 import constantbeta.com.gloshoconductor.viewstate.ViewStateManager;
 
-public class CameraFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener, CameraWrapper.Listener
+public class ConductorFragment extends Fragment implements View.OnClickListener, WebSocketWrapper.Listener, CameraWrapper.Listener
 {
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
@@ -38,15 +38,15 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     private ImageProcessor imageProcessor;
 
     // package scope
-    static CameraFragment newInstance()
+    static ConductorFragment newInstance()
     {
-        return new CameraFragment();
+        return new ConductorFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.fragment_camera, container, false);
+        return inflater.inflate(R.layout.fragment_conductor, container, false);
     }
 
     @Override
