@@ -10,6 +10,9 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import constantbeta.com.gloshoconductor.camera.CameraPermissions;
 import constantbeta.com.gloshoconductor.camera.CameraWrapper;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessor;
@@ -20,6 +23,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
     private final WebSocketWrapper webSocketWrapper = new WebSocketWrapper("ws://192.168.0.8:8080", this);
+
+    private final Timer timer = new Timer();
 
     private CameraWrapper cameraWrapper;
 
@@ -115,7 +120,15 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     public void onConnected()
     {
         setViewState(ViewStateManager.States.LOGGING_IN);
-        webSocketWrapper.login(cameraWrapper.getImageSize(), imageProcessorType);
+        timer.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                webSocketWrapper.login(cameraWrapper.getImageSize(), imageProcessorType);
+            }
+        }, getResources().getInteger(R.integer.login_delay));
+
     }
 
     @Override
@@ -149,7 +162,15 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     {
         imageProcessor = ImageProcessorFactory.create(imageProcessorType, cameraWrapper.getImageSize());
         setViewState(ViewStateManager.States.CONNECTING);
-        webSocketWrapper.open();
+        timer.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                webSocketWrapper.open();
+            }
+        }, getResources().getInteger(R.integer.connect_delay));
+
     }
 
     @Override

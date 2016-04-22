@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="image_processor_type">y-plane</string>
+    <integer name="connect_delay">1000</integer>
+    <integer name="login_delay">1000</integer>
 </resources>
