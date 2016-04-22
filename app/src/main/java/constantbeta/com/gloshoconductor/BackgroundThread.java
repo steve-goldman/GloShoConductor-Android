@@ -3,27 +3,26 @@ package constantbeta.com.gloshoconductor;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-// package scope
-class BackgroundThread
+public class BackgroundThread
 {
     private final String name;
 
     private HandlerThread thread;
     private Handler handler;
 
-    BackgroundThread(String name)
+    public BackgroundThread(String name)
     {
         this.name = name;
     }
 
-    void start()
+    public void start()
     {
         thread = new HandlerThread(name);
         thread.start();
         handler = new Handler(thread.getLooper());
     }
 
-    void stop()
+    public void stop()
     {
         thread.quitSafely();
         try
@@ -38,7 +37,7 @@ class BackgroundThread
         }
     }
 
-    Handler handler()
+    public Handler handler()
     {
         return handler;
     }

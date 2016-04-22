@@ -11,10 +11,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-// package scope
-class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebSocket.StringCallback
+public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebSocket.StringCallback
 {
-    interface Listener
+    public interface Listener
     {
         void onConnected();
         void onUnableToConnect();
@@ -31,13 +30,13 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
 
     private boolean loggedIn;
 
-    WebSocketWrapper(String uri, Listener listener)
+    public WebSocketWrapper(String uri, Listener listener)
     {
         this.uri = uri;
         this.listener = listener;
     }
 
-    void open()
+    public void open()
     {
         if (null != webSocket)
         {
@@ -48,7 +47,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         AsyncHttpClient.getDefaultInstance().websocket(uri, "glosho-conductor", this);
     }
 
-    void close()
+    public void close()
     {
         loggedIn = false;
         if (null != webSocket)
@@ -59,7 +58,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         }
     }
 
-    void sendReady()
+    public void sendReady()
     {
         Log.d(TAG, "sending ready");
         try
@@ -73,7 +72,7 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         }
     }
 
-    void sendProcessedImage(byte[] bytes)
+    public void sendProcessedImage(byte[] bytes)
     {
         Log.d(TAG, "sending processed image");
         webSocket.send(bytes);

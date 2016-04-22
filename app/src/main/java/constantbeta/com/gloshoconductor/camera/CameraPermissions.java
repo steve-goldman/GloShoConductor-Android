@@ -1,4 +1,4 @@
-package constantbeta.com.gloshoconductor;
+package constantbeta.com.gloshoconductor.camera;
 
 import android.Manifest;
 import android.app.Activity;
@@ -21,21 +21,20 @@ public class CameraPermissions
 
     private final Fragment fragment;
 
-    // package scope
-    CameraPermissions(Fragment fragment)
+    public CameraPermissions(Fragment fragment)
     {
         this.fragment = fragment;
     }
 
     // package scope
-    boolean has()
+    public boolean has()
     {
         return ContextCompat.checkSelfPermission(fragment.getActivity(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
     // package scope
-    void request()
+    public void request()
     {
         if (FragmentCompat.shouldShowRequestPermissionRationale(fragment, Manifest.permission.CAMERA))
         {
@@ -47,7 +46,7 @@ public class CameraPermissions
         }
     }
 
-    void onRequestPermissionsResult(@NonNull int[] grantResults)
+    public void onRequestPermissionsResult(@NonNull int[] grantResults)
     {
         if (grantResults.length != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
         {

@@ -10,6 +10,8 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import constantbeta.com.gloshoconductor.camera.CameraPermissions;
+import constantbeta.com.gloshoconductor.camera.CameraWrapper;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessor;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessorFactory;
 

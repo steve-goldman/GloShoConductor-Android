@@ -5,7 +5,7 @@ import android.util.Size;
 
 import java.nio.ByteBuffer;
 
-// package class -- instantiate with factory
+// package scope -- instantiate with factory
 class ImageProcessorYPlane extends ImageProcessorBase implements ImageProcessor
 {
     private final byte[] bytes;

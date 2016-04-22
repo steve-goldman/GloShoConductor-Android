@@ -1,4 +1,4 @@
-package constantbeta.com.gloshoconductor;
+package constantbeta.com.gloshoconductor.camera;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,7 +24,6 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,10 +32,11 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-// package scope
-class CameraWrapper
+import constantbeta.com.gloshoconductor.CameraFragment;
+
+public class CameraWrapper
 {
-    interface Listener
+    public interface Listener
     {
         void onCameraOpened();
         void onPictureTaken(Image image);
@@ -63,18 +63,14 @@ class CameraWrapper
     private static final int TAKE_PICTURE = 1;
     private int state = PREVIEW;
 
-    // TODO -- temp
-    private final File file;
-
-    CameraWrapper(Listener listener, CameraFragment fragment, Handler backgroundHandler)
+    public CameraWrapper(Listener listener, CameraFragment fragment, Handler backgroundHandler)
     {
         this.listener = listener;
         this.fragment = fragment;
         this.backgroundHandler = backgroundHandler;
-        this.file = new File(fragment.getActivity().getExternalFilesDir(null), "pic.yuv");
     }
 
-    void open()
+    public void open()
     {
         if (fragment.getTextureView().isAvailable())
         {
@@ -114,7 +110,7 @@ class CameraWrapper
         listener.onCameraOpened();
     }
 
-    void closeCamera()
+    public void closeCamera()
     {
         try
         {
@@ -375,12 +371,12 @@ class CameraWrapper
         }
     }
 
-    void takePicture()
+    public void takePicture()
     {
         state = TAKE_PICTURE;
     }
 
-    Size getImageSize()
+    public Size getImageSize()
     {
         return imageSize;
     }
