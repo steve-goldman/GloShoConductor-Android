@@ -1,6 +1,7 @@
 package constantbeta.com.gloshoconductor;
 
 import android.util.Log;
+import android.util.Size;
 
 import com.koushikdutta.async.callback.WritableCallback;
 import com.koushikdutta.async.http.AsyncHttpClient;
@@ -104,12 +105,15 @@ class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebS
         listener.onConnected();
     }
 
-    void login()
+    void login(Size size, String imageProcessorType)
     {
         Log.d(TAG, "logging in");
         try
         {
-            final Message message = new Message("conductor-login");
+            final Message message = new Message("conductor-login")
+                    .put("width", size.getWidth())
+                    .put("height", size.getHeight())
+                    .put("image-processor-type", imageProcessorType);
             message.send(webSocket);
         }
         catch (JSONException e)

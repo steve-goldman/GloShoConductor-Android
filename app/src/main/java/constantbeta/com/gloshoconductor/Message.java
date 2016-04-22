@@ -22,6 +22,12 @@ public class Message
         return this;
     }
 
+    public Message put(String key, int value) throws JSONException
+    {
+        json.put(key, value);
+        return this;
+    }
+
     public void send(WebSocket webSocket)
     {
         webSocket.send(json.toString());

@@ -26,6 +26,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     private TextureView textureView;
     private final ViewStateManager viewStateManager = ViewStateManager.get();
 
+    private String imageProcessorType;
     private ImageProcessor imageProcessor;
 
     // package scope
@@ -44,6 +45,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     public void onViewCreated(final View view, Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
+        imageProcessorType = getString(R.string.image_processor_type);
         textureView = (TextureView)view.findViewById(R.id.texture);
         viewStateManager.init(view);
         view.findViewById(R.id.ready_to_start_button).setOnClickListener(this);
@@ -63,8 +65,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
         backgroundThread.start();
         cameraWrapper = new CameraWrapper(this, this, backgroundThread.handler());
         openCamera();
-        setViewState(ViewStateManager.States.CONNECTING);
-        webSocketWrapper.open();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     public void onConnected()
     {
         setViewState(ViewStateManager.States.LOGGING_IN);
-        webSocketWrapper.login();
+        webSocketWrapper.login(cameraWrapper.getImageSize(), imageProcessorType);
     }
 
     @Override
@@ -145,7 +145,9 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     @Override
     public void onCameraOpened()
     {
-        imageProcessor = ImageProcessorFactory.create(getString(R.string.image_processor_type), cameraWrapper.getImageSize());
+        imageProcessor = ImageProcessorFactory.create(imageProcessorType, cameraWrapper.getImageSize());
+        setViewState(ViewStateManager.States.CONNECTING);
+        webSocketWrapper.open();
     }
 
     @Override
