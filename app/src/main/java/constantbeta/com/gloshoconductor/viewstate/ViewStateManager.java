@@ -1,17 +1,11 @@
 package constantbeta.com.gloshoconductor.viewstate;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import constantbeta.com.gloshoconductor.R;
 
-public class ViewStateManager
+public class ViewStateManager extends ViewStateManagerBase
 {
     public class States
     {
@@ -35,6 +29,27 @@ public class ViewStateManager
     {
     }
 
+    private static final ViewHolder connectingTextView        = new ViewHolder();
+    private static final ViewHolder unableToConnectTextView   = new ViewHolder();
+    private static final ViewHolder loggingInTextView         = new ViewHolder();
+    private static final ViewHolder readyButton               = new ViewHolder();
+    private static final ViewHolder waitingForCommandTextView = new ViewHolder();
+    private static final ViewHolder takingPictureTextView     = new ViewHolder();
+    private static final ViewHolder sendingPictureTextView    = new ViewHolder();
+    private static final ViewHolder playerCountTextView       = new ViewHolder();
+
+    static
+    {
+        setVisibleViews(States.CONNECTING,          new ViewHolder[]{connectingTextView});
+        setVisibleViews(States.UNABLE_TO_CONNECT,   new ViewHolder[] { unableToConnectTextView });
+        setVisibleViews(States.LOGGING_IN,          new ViewHolder[] { loggingInTextView });
+        setVisibleViews(States.READY_TO_START,      new ViewHolder[]{readyButton, playerCountTextView});
+        setVisibleViews(States.WAITING_FOR_COMMAND, new ViewHolder[]{waitingForCommandTextView});
+        setVisibleViews(States.TAKING_PICTURE,      new ViewHolder[]{takingPictureTextView});
+        setVisibleViews(States.SENDING_PICTURE,     new ViewHolder[]{sendingPictureTextView});
+    }
+
+    @Override
     public void init(View view)
     {
         connectingTextView.view        = view.findViewById(R.id.connecting_text_view);
@@ -48,66 +63,9 @@ public class ViewStateManager
         disappearAll();
     }
 
-    public void setState(int state)
-    {
-        if (OnViews.containsKey(state))
-        {
-            disappearAll();
-            for (ViewHolder viewHolder : OnViews.get(state))
-            {
-                viewHolder.view.setVisibility(View.VISIBLE);
-            }
-        }
-        else
-        {
-            Log.e(TAG, "invalid state: " + state);
-        }
-    }
-
     public void setPlayerCount(int playerCount)
     {
         ((TextView)playerCountTextView.view).setText(
                 playerCount + (playerCount == 1 ? " player" : " players"));
-    }
-
-    private static class ViewHolder
-    {
-        ViewHolder()
-        {
-            allViewHolders.add(this);
-        }
-
-        View view;
-    }
-
-    private static final String TAG = "ViewStateManager";
-    private static final List<ViewHolder> allViewHolders = new ArrayList<>();
-    private static final ViewHolder connectingTextView        = new ViewHolder();
-    private static final ViewHolder unableToConnectTextView   = new ViewHolder();
-    private static final ViewHolder loggingInTextView         = new ViewHolder();
-    private static final ViewHolder readyButton               = new ViewHolder();
-    private static final ViewHolder waitingForCommandTextView = new ViewHolder();
-    private static final ViewHolder takingPictureTextView     = new ViewHolder();
-    private static final ViewHolder sendingPictureTextView    = new ViewHolder();
-    private static final ViewHolder playerCountTextView       = new ViewHolder();
-
-    private static final Map<Integer, ViewHolder[]> OnViews = new HashMap<>();
-    static
-    {
-        OnViews.put(States.CONNECTING,          new ViewHolder[] { connectingTextView });
-        OnViews.put(States.UNABLE_TO_CONNECT,   new ViewHolder[] { unableToConnectTextView });
-        OnViews.put(States.LOGGING_IN,          new ViewHolder[] { loggingInTextView });
-        OnViews.put(States.READY_TO_START,      new ViewHolder[] { readyButton, playerCountTextView });
-        OnViews.put(States.WAITING_FOR_COMMAND, new ViewHolder[] { waitingForCommandTextView });
-        OnViews.put(States.TAKING_PICTURE,      new ViewHolder[] { takingPictureTextView });
-        OnViews.put(States.SENDING_PICTURE,     new ViewHolder[] { sendingPictureTextView });
-    }
-
-    private void disappearAll()
-    {
-        for (ViewHolder viewHolder : allViewHolders)
-        {
-            viewHolder.view.setVisibility(View.GONE);
-        }
     }
 }
