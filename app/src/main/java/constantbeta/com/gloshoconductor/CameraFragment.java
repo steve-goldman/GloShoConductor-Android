@@ -22,7 +22,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
 {
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
-    private final WebSocketWrapper webSocketWrapper = new WebSocketWrapper("ws://192.168.0.8:8080", this);
+    private WebSocketWrapper webSocketWrapper;
 
     private final Timer timer = new Timer();
 
@@ -52,6 +52,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, We
     public void onViewCreated(final View view, Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
+        webSocketWrapper = new WebSocketWrapper(getString(R.string.server_uri), this);
         imageProcessorType = getString(R.string.image_processor_type);
         textureView = (TextureView)view.findViewById(R.id.texture);
         viewStateManager.init(view);
