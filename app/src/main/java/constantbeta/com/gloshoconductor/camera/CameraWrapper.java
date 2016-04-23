@@ -110,7 +110,7 @@ public class CameraWrapper
         listener.onCameraOpened();
     }
 
-    public void closeCamera()
+    public void close()
     {
         try
         {

@@ -81,7 +81,7 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     public void onPause()
     {
         super.onPause();
-        cameraWrapper.closeCamera();
+        cameraWrapper.close();
         webSocketWrapper.close();
         backgroundThread.stop();
     }
