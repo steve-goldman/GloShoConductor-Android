@@ -18,9 +18,11 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
         void onConnected();
         void onUnableToConnect();
         void onLoggedIn();
+        void onPlayerCountUpdated(int playerCount);
+        void onStartingIn(int seconds);
+        void onRunning();
         void onTakePicture();
         void onPictureSent();
-        void onPlayerCountUpdated(int playerCount);
     }
 
     private static final String TAG = "WebSocketWrapper";
@@ -64,7 +66,7 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
         Log.d(TAG, "sending ready");
         try
         {
-            final Message message = new Message("ready-for-command");
+            final Message message = new Message("ready-to-start");
             message.send(webSocket);
         }
         catch (JSONException e)
@@ -143,6 +145,14 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
             else if ("player-count-update".equals(messageType))
             {
                 listener.onPlayerCountUpdated(json.getInt("playerCount"));
+            }
+            else if ("starting-in".equals(messageType))
+            {
+                listener.onStartingIn(json.getInt("seconds"));
+            }
+            else if ("running".equals(messageType))
+            {
+                listener.onRunning();
             }
         }
         catch (JSONException e)

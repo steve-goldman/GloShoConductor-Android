@@ -89,7 +89,7 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onClick(View v)
     {
-        setViewState(ViewStateManager.States.WAITING_FOR_COMMAND);
+        setViewState(ViewStateManager.States.WAITING_TO_START);
         webSocketWrapper.sendReady();
     }
 
@@ -174,6 +174,18 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
+    public void onStartingIn(int seconds)
+    {
+        setStartingInSeconds(seconds);
+    }
+
+    @Override
+    public void onRunning()
+    {
+        setViewState(ViewStateManager.States.WAITING_FOR_COMMAND);
+    }
+
+    @Override
     public void onCameraOpened()
     {
         imageProcessor = ImageProcessorFactory.create(imageProcessorType, cameraWrapper.getImageSize());
@@ -186,7 +198,6 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
                 webSocketWrapper.open();
             }
         }, getResources().getInteger(R.integer.connect_delay));
-
     }
 
     @Override
@@ -204,6 +215,19 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
             public void run()
             {
                 viewStateManager.setState(state);
+            }
+        });
+    }
+
+    private void setStartingInSeconds(final int seconds)
+    {
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                viewStateManager.setStartingInSeconds(seconds);
+                viewStateManager.setState(ViewStateManager.States.STARTING_IN);
             }
         });
     }

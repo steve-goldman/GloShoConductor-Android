@@ -4,6 +4,7 @@
     <string name="unable_to_connect_text">Unable to connect...</string>
     <string name="logging_in_text">Logging in...</string>
     <string name="ready_to_start_button">Ready?</string>
+    <string name="waiting_to_start">Waiting for start...</string>
     <string name="waiting_for_command_text">Waiting for command...</string>
     <string name="taking_picture_text">Taking picture...</string>
     <string name="sending_picture_text">Sending picture...</string>
