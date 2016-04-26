@@ -156,7 +156,7 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onPictureSent()
     {
-        setViewState(ViewStateManager.States.READY_TO_START);
+        setViewState(ViewStateManager.States.WAITING_FOR_COMMAND);
         // TODO -- show toast?
     }
 
