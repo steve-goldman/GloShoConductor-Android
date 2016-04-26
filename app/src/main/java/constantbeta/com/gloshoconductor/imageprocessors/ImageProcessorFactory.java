@@ -15,9 +15,6 @@ public class ImageProcessorFactory
         {
             return new ImageProcessorYPlane(size);
         }
-        else
-        {
-            throw new Error("unexpected image processor type: " + type);
-        }
+        throw new IllegalArgumentException("unexpected image processor type: " + type);
     }
 }
