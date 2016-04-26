@@ -210,7 +210,7 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     public void onPictureTaken(Image image)
     {
         setViewState(ViewStateManager.States.SENDING_PICTURE);
-        webSocketWrapper.sendProcessedImage(imageProcessor.process(image));
+        webSocketWrapper.sendProcessedImage(imageProcessor.encode(image));
     }
 
     private void setViewState(final int state)

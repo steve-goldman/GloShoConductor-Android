@@ -4,5 +4,5 @@ import android.media.Image;
 
 public interface ImageProcessor
 {
-    byte[] process(Image image);
+    byte[] encode(Image image);
 }

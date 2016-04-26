@@ -19,7 +19,7 @@ class ImageProcessorYPlane extends ImageProcessorBase implements ImageProcessor
     }
 
     @Override
-    public byte[] process(Image image)
+    public byte[] encode(Image image)
     {
         Log.d(TAG, "processing");
         final ByteBuffer buffer = image.getPlanes()[0].getBuffer();
