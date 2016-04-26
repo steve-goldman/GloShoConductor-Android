@@ -23,6 +23,7 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
         void onRunning();
         void onTakePicture();
         void onPictureSent();
+        void onDone();
     }
 
     private static final String TAG = "WebSocketWrapper";
@@ -153,6 +154,10 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
             else if ("running".equals(messageType))
             {
                 listener.onRunning();
+            }
+            else if ("done".equals(messageType))
+            {
+                listener.onDone();
             }
         }
         catch (JSONException e)

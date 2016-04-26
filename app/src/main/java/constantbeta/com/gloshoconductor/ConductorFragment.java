@@ -186,6 +186,12 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
+    public void onDone()
+    {
+        setViewState(ViewStateManager.States.DONE);
+    }
+
+    @Override
     public void onCameraOpened()
     {
         imageProcessor = ImageProcessorFactory.create(imageProcessorType, cameraWrapper.getImageSize());

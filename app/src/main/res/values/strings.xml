@@ -8,4 +8,5 @@
     <string name="waiting_for_command_text">Waiting for command...</string>
     <string name="taking_picture_text">Taking picture...</string>
     <string name="sending_picture_text">Sending picture...</string>
+    <string name="done_text">All done!</string>
 </resources>
