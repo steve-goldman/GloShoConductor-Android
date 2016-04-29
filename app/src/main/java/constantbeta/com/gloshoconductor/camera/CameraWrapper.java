@@ -188,7 +188,8 @@ public class CameraWrapper
                     continue;
                 }
 
-                imageSize = Collections.max(
+                //imageSize = Collections.max(
+                imageSize = Collections.min(
                         Arrays.asList(map.getOutputSizes(ImageFormat.YV12)),
                         new CompareSizesByArea());
                 Log.d(TAG, "Image size: " + imageSize.getWidth() + "x" + imageSize.getHeight());
