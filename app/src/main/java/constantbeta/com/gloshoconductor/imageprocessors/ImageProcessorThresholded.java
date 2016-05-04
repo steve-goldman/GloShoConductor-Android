@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 // package scope -- instantiate with factory
 class ImageProcessorThresholded extends ImageProcessorBase implements ImageProcessor
 {
-    private static final String TAG        = "ImageProcessorThresh";
+    private static final String TAG        = "IPThresholded";
     private final byte[] bytes;
 
     private static final int THRESHOLD     = 240;

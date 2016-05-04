@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 // package scope -- instantiate with factory
 class ImageProcessorYPlane extends ImageProcessorBase implements ImageProcessor
 {
-    private static final String TAG = "ImageProcessorYPlane";
+    private static final String TAG = "IPYPlane";
     private final byte[] bytes;
 
     ImageProcessorYPlane(Size size)

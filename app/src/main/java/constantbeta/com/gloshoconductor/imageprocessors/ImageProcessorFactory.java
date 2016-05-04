@@ -8,6 +8,7 @@ public class ImageProcessorFactory
     {
         public static final String YPlane = "y-plane";
         public static final String Thresholded = "thresholded";
+        public static final String ThresholdedBits = "thresholded-bits";
     }
 
     public static ImageProcessor create(String type, Size size)
@@ -19,6 +20,10 @@ public class ImageProcessorFactory
         else if (Types.Thresholded.equals(type))
         {
             return new ImageProcessorThresholded(size);
+        }
+        else if (Types.ThresholdedBits.equals(type))
+        {
+            return new ImageProcessorThresholdedBits(size);
         }
         throw new IllegalArgumentException("unexpected image processor type: " + type);
     }
