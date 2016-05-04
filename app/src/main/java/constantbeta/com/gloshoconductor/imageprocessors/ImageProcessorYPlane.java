@@ -10,20 +10,20 @@ import java.nio.ByteBuffer;
 class ImageProcessorYPlane extends ImageProcessorBase implements ImageProcessor
 {
     private static final String TAG = "IPYPlane";
-    private final byte[] bytes;
+    private final ByteBuffer bytes;
 
     ImageProcessorYPlane(Size size)
     {
         super(size);
-        bytes = new byte[size.getWidth() * size.getHeight()];
+        bytes = ByteBuffer.allocateDirect(size.getWidth() * size.getHeight());
     }
 
     @Override
-    public byte[] encode(Image image)
+    public ByteBuffer encode(Image image)
     {
         Log.d(TAG, "processing");
         final ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-        buffer.get(bytes);
+        bytes.put(buffer).flip();
         return bytes;
     }
 }

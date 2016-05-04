@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.nio.ByteBuffer;
+
 public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallback, WebSocket.StringCallback
 {
     public interface Listener
@@ -76,10 +78,10 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
         }
     }
 
-    public void sendProcessedImage(byte[] bytes)
+    public void sendProcessedImage(ByteBuffer bytes)
     {
         Log.d(TAG, "sending processed image");
-        webSocket.send(bytes);
+        webSocket.send(bytes.array(), bytes.position(), bytes.remaining());
         webSocket.setWriteableCallback(new WritableCallback()
         {
             @Override
