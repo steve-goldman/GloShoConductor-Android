@@ -152,7 +152,6 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     public void onTakePicture()
     {
         setViewState(ViewStateManager.States.TAKING_PICTURE);
-        takingPictures = false;
         cameraWrapper.takePicture();
     }
 
@@ -168,6 +167,7 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     public void onStopTakingPictures()
     {
         cameraWrapper.stopTakingPictures();
+        takingPictures = false;
         setViewState(ViewStateManager.States.DONE);
     }
 

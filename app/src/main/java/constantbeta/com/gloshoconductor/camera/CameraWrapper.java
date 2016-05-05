@@ -177,26 +177,29 @@ public class CameraWrapper
         {
             final Image image = reader.acquireLatestImage();
 
-            switch (requestState)
+            if (image != null)
             {
-                case TAKE_PICTURE:
+                switch (requestState)
                 {
-                    listener.onPictureTaken(image);
-                    requestState = RequestState.NONE;
-                    break;
+                    case TAKE_PICTURE:
+                    {
+                        listener.onPictureTaken(image);
+                        requestState = RequestState.NONE;
+                        break;
+                    }
+                    case TAKE_PICTURES:
+                    {
+                        listener.onPictureTaken(image);
+                        break;
+                    }
+                    case NONE:
+                    {
+                        break;
+                    }
                 }
-                case TAKE_PICTURES:
-                {
-                    listener.onPictureTaken(image);
-                    break;
-                }
-                case NONE:
-                {
-                    break;
-                }
-            }
 
-            image.close();
+                image.close();
+            }
         }
     };
 
