@@ -78,6 +78,20 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
         }
     }
 
+    private void sendPong()
+    {
+        Log.d(TAG, "sending pong");
+        try
+        {
+            final Message message = new Message("pong");
+            message.send(webSocket);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     public void sendProcessedImage(ByteBuffer bytes)
     {
         Log.d(TAG, "sending processed image");
@@ -160,6 +174,10 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
             else if ("done".equals(messageType))
             {
                 listener.onDone();
+            }
+            else if ("ping".equals(messageType))
+            {
+                sendPong();
             }
         }
         catch (JSONException e)
