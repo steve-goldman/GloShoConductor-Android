@@ -38,6 +38,8 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     private String imageProcessorType;
     private ImageProcessor imageProcessor;
 
+    private boolean takingPictures;
+
     // package scope
     static ConductorFragment newInstance()
     {
@@ -150,14 +152,36 @@ public class ConductorFragment extends Fragment implements View.OnClickListener,
     public void onTakePicture()
     {
         setViewState(ViewStateManager.States.TAKING_PICTURE);
+        takingPictures = false;
         cameraWrapper.takePicture();
+    }
+
+    @Override
+    public void onStartTakingPictures()
+    {
+        setViewState(ViewStateManager.States.TAKING_PICTURE);
+        takingPictures = true;
+        cameraWrapper.startTakingPictures();
+    }
+
+    @Override
+    public void onStopTakingPictures()
+    {
+        cameraWrapper.stopTakingPictures();
+        setViewState(ViewStateManager.States.DONE);
     }
 
     @Override
     public void onPictureSent()
     {
-        setViewState(ViewStateManager.States.WAITING_FOR_COMMAND);
-        // TODO -- show toast?
+        if (takingPictures)
+        {
+            setViewState(ViewStateManager.States.TAKING_PICTURE);
+        }
+        else
+        {
+            setViewState(ViewStateManager.States.WAITING_FOR_COMMAND);
+        }
     }
 
     @Override

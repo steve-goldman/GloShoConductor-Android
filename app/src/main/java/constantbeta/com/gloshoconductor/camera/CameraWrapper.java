@@ -13,7 +13,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
@@ -57,11 +56,6 @@ public class CameraWrapper
     private CameraDevice device;
     private Size imageSize;
     private Size previewSize;
-    private CaptureRequest previewRequest;
-
-    private static final int PREVIEW = 0;
-    private static final int TAKE_PICTURE = 1;
-    private int state = PREVIEW;
 
     public CameraWrapper(Listener listener, ConductorFragment fragment, Handler backgroundHandler)
     {
@@ -87,7 +81,7 @@ public class CameraWrapper
         final Activity activity = fragment.getActivity();
         manager = (CameraManager)activity.getSystemService(Context.CAMERA_SERVICE);
 
-        setupOutputs(backgroundHandler);
+        setupOutputs();
         configureTransform(fragment.getTextureView().getWidth(), fragment.getTextureView().getHeight());
 
         try
@@ -168,7 +162,45 @@ public class CameraWrapper
         }
     };
 
-    private void setupOutputs(final Handler backgroundHandler)
+    private enum RequestState
+    {
+        NONE,
+        TAKE_PICTURE,
+        TAKE_PICTURES
+    }
+    private RequestState requestState = RequestState.NONE;
+
+    private final ImageReader.OnImageAvailableListener imageAvailableListener = new ImageReader.OnImageAvailableListener()
+    {
+        @Override
+        public void onImageAvailable(final ImageReader reader)
+        {
+            final Image image = reader.acquireLatestImage();
+
+            switch (requestState)
+            {
+                case TAKE_PICTURE:
+                {
+                    listener.onPictureTaken(image);
+                    requestState = RequestState.NONE;
+                    break;
+                }
+                case TAKE_PICTURES:
+                {
+                    listener.onPictureTaken(image);
+                    break;
+                }
+                case NONE:
+                {
+                    break;
+                }
+            }
+
+            image.close();
+        }
+    };
+
+    private void setupOutputs()
     {
         try
         {
@@ -195,28 +227,12 @@ public class CameraWrapper
                 Log.d(TAG, "Image size: " + imageSize.getWidth() + "x" + imageSize.getHeight());
 
                 imageReader = ImageReader.newInstance(imageSize.getWidth(), imageSize.getHeight(), ImageFormat.YV12, 2);
-                imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener()
-                {
-                    @Override
-                    public void onImageAvailable(final ImageReader reader)
-                    {
-                        backgroundHandler.post(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    final Image image = reader.acquireLatestImage();
-                                    listener.onPictureTaken(image);
-                                    image.close();
-                                }
-                            });
-                    }
-                }, backgroundHandler);
+                imageReader.setOnImageAvailableListener(imageAvailableListener, backgroundHandler);
 
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
                 int displayRotation = fragment.getActivity().getWindowManager().getDefaultDisplay().getRotation();
-                int sensorOrientation =
+                @SuppressWarnings("ConstantConditions") int sensorOrientation =
                         characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
                 boolean swappedDimensions = false;
                 switch (displayRotation) {
@@ -246,10 +262,15 @@ public class CameraWrapper
                 int maxPreviewWidth = displaySize.x;
                 int maxPreviewHeight = displaySize.y;
 
+
                 if (swappedDimensions) {
+                    //noinspection SuspiciousNameCombination
                     rotatedPreviewWidth = height;
+                    //noinspection SuspiciousNameCombination
                     rotatedPreviewHeight = width;
+                    //noinspection SuspiciousNameCombination
                     maxPreviewWidth = displaySize.y;
+                    //noinspection SuspiciousNameCombination
                     maxPreviewHeight = displaySize.x;
                 }
 
@@ -330,8 +351,9 @@ public class CameraWrapper
             texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
 
             final Surface surface = new Surface(texture);
-            final CaptureRequest.Builder previewRequestBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            final CaptureRequest.Builder previewRequestBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
             previewRequestBuilder.addTarget(surface);
+            previewRequestBuilder.addTarget(imageReader.getSurface());
 
             device.createCaptureSession(Arrays.asList(surface, imageReader.getSurface()), new CameraCaptureSession.StateCallback()
                 {
@@ -348,10 +370,7 @@ public class CameraWrapper
                         CameraWrapper.this.captureSession = captureSession;
                         try
                         {
-                            // TODO -- autofocus?
-
-                            previewRequest = previewRequestBuilder.build();
-                            captureSession.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler);
+                            captureSession.setRepeatingRequest(previewRequestBuilder.build(), null, backgroundHandler);
                         }
                         catch (CameraAccessException e)
                         {
@@ -374,85 +393,23 @@ public class CameraWrapper
 
     public void takePicture()
     {
-        state = TAKE_PICTURE;
+        requestState = RequestState.TAKE_PICTURE;
+    }
+
+    public void startTakingPictures()
+    {
+        requestState = RequestState.TAKE_PICTURES;
+    }
+
+    public void stopTakingPictures()
+    {
+        requestState = RequestState.NONE;
     }
 
     public Size getImageSize()
     {
         return imageSize;
     }
-
-    private void captureStillPicture()
-    {
-        try
-        {
-            final Activity activity = fragment.getActivity();
-            if (null == activity || null == device)
-            {
-                return;
-            }
-
-            final CaptureRequest.Builder captureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(imageReader.getSurface());
-
-            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
-                               CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-
-            captureSession.stopRepeating();
-            captureSession.capture(captureBuilder.build(), new CameraCaptureSession.CaptureCallback()
-                {
-                    @Override
-                    public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                                                   @NonNull CaptureRequest request,
-                                                   @NonNull TotalCaptureResult result)
-                    {
-                        try
-                        {
-                            captureSession.setRepeatingRequest(previewRequest,
-                                                               captureCallback,
-                                                               backgroundHandler);
-                        }
-                        catch (CameraAccessException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                }, null);
-        }
-        catch (CameraAccessException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private final CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback()
-    {
-        private void process()
-        {
-            switch (state)
-            {
-                case PREVIEW:
-                {
-                    // no-op
-                    break;
-                }
-                case TAKE_PICTURE:
-                {
-                    state = PREVIEW;
-                    captureStillPicture();
-                    break;
-                }
-            }
-        }
-
-        @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                                       @NonNull CaptureRequest request,
-                                       @NonNull TotalCaptureResult result)
-        {
-            process();
-        }
-    };
 
     private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback()
     {

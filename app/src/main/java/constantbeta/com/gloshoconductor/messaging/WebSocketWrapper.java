@@ -24,6 +24,8 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
         void onStartingIn(int seconds);
         void onRunning();
         void onTakePicture();
+        void onStartTakingPictures();
+        void onStopTakingPictures();
         void onPictureSent();
         void onDone();
     }
@@ -33,8 +35,6 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
     private final String uri;
     private WebSocket webSocket;
     private final Listener listener;
-
-    private boolean loggedIn;
 
     public WebSocketWrapper(String uri, Listener listener)
     {
@@ -55,7 +55,6 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
 
     public void close()
     {
-        loggedIn = false;
         if (null != webSocket)
         {
             Log.d(TAG, "closing");
@@ -152,12 +151,19 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
 
             if ("conductor-logged-in".equals(messageType))
             {
-                loggedIn = true;
                 listener.onLoggedIn();
             }
             else if ("take-picture".equals(messageType))
             {
                 listener.onTakePicture();
+            }
+            else if ("start-taking-pictures".equals(messageType))
+            {
+                listener.onStartTakingPictures();
+            }
+            else if ("stop-taking-pictures".equals(messageType))
+            {
+                listener.onStopTakingPictures();
             }
             else if ("player-count-update".equals(messageType))
             {
