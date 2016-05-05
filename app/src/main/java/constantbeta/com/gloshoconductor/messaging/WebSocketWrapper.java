@@ -94,7 +94,9 @@ public class WebSocketWrapper implements AsyncHttpClient.WebSocketConnectCallbac
     public void sendProcessedImage(ByteBuffer bytes)
     {
         Log.d(TAG, "sending processed image");
-        webSocket.send(bytes.array(), bytes.position(), bytes.remaining());
+        // note: the library calls the last argument "len" but uses it as
+        // the index of one past the last element
+        webSocket.send(bytes.array(), bytes.arrayOffset(), bytes.remaining() + bytes.arrayOffset());
         webSocket.setWriteableCallback(new WritableCallback()
         {
             @Override

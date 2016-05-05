@@ -37,9 +37,10 @@ class ImageProcessorThresholdedDeltaDistances extends ImageProcessorBase impleme
 
         final ByteBuffer buffer = image.getPlanes()[0].getBuffer();
 
-        bytes.position(0).limit(bytes.capacity());
-        boolean curIsOn = false;
-        int  curCount   = 0;
+        bytes.clear();
+
+        boolean curIsOn  = false;
+        int     curCount = 0;
 
         while (buffer.hasRemaining())
         {
