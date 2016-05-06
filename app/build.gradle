@@ -19,7 +19,7 @@ model {
             }
         }
         ndk {
-            moduleName = "image-processor-thresholded"
+            moduleName = "image-processor"
         }
     }
 }

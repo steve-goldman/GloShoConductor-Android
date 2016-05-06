@@ -2,9 +2,14 @@
 #include <stdint.h>
 
 JNIEXPORT void JNICALL
-Java_constantbeta_com_gloshoconductor_imageprocessors_ImageProcessorThresholded_encode__Ljava_nio_ByteBuffer_2Ljava_nio_ByteBuffer_2II(
-        JNIEnv *env, jobject instance, jobject src, jobject dest, jint size, jint threshold) {
-
+Java_constantbeta_com_gloshoconductor_imageprocessors_ImageProcessorNative_encodeThresholded(
+        JNIEnv *env,
+        jclass type,
+        jobject src,
+        jobject dest,
+        jint size,
+        jint threshold)
+{
     const uint8_t OFF       = 0;
     const uint8_t ON        = 255;
 
