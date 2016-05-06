@@ -17,17 +17,7 @@ class ImageProcessorThresholdedDeltaDistances extends ImageProcessorBase impleme
     ImageProcessorThresholdedDeltaDistances(Size size)
     {
         super(size);
-        this.bytes = ByteBuffer.allocateDirect(size.getWidth() * size.getHeight());
-    }
-
-    private void writeCount(int count)
-    {
-        while (count > 127)
-        {
-            bytes.put((byte)(0x80 | (count & 0x7F)));
-            count >>>= 7;
-        }
-        bytes.put((byte)count);
+        this.bytes = ByteBuffer.allocateDirect(numImagePixels());
     }
 
     @Override
@@ -35,41 +25,8 @@ class ImageProcessorThresholdedDeltaDistances extends ImageProcessorBase impleme
     {
         Log.d(TAG, "processing");
 
-        final ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-
-        bytes.clear();
-
-        boolean curIsOn  = false;
-        int     curCount = 0;
-
-        while (buffer.hasRemaining())
-        {
-            final boolean isOn = isOn(buffer.get());
-            if (!curIsOn && isOn)
-            {
-                writeCount(curCount);
-                curIsOn = true;
-                curCount = 1;
-            }
-            else if (curIsOn && !isOn)
-            {
-                writeCount(curCount);
-                curIsOn = false;
-                curCount = 1;
-            }
-            else
-            {
-                curCount++;
-            }
-        }
-        writeCount(curCount);
-
-        bytes.flip();
+        final ByteBuffer srcBuffer = image.getPlanes()[0].getBuffer();
+        bytes.limit(ImageProcessorNative.encodeThresholdedDeltaDistances(srcBuffer, bytes, numImagePixels(), THRESHOLD));
         return bytes;
-    }
-
-    private boolean isOn(byte b)
-    {
-        return (b & 0xFF) >= THRESHOLD;
     }
 }

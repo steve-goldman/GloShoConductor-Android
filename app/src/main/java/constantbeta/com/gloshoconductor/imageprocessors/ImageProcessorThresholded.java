@@ -11,15 +11,13 @@ class ImageProcessorThresholded extends ImageProcessorBase implements ImageProce
 {
     private static final String TAG        = "IPThresholded";
     private final ByteBuffer    bytes;
-    private final int           size;
 
     private static final int    THRESHOLD  = 240;
 
     ImageProcessorThresholded(Size size)
     {
         super(size);
-        this.size = size.getWidth() * size.getHeight();
-        this.bytes = ByteBuffer.allocateDirect(this.size);
+        this.bytes = ByteBuffer.allocateDirect(numImagePixels());
     }
 
     @Override
@@ -28,7 +26,7 @@ class ImageProcessorThresholded extends ImageProcessorBase implements ImageProce
         Log.d(TAG, "processing");
 
         final ByteBuffer srcBuffer = image.getPlanes()[0].getBuffer();
-        ImageProcessorNative.encodeThresholded(srcBuffer, bytes, size, THRESHOLD);
+        ImageProcessorNative.encodeThresholded(srcBuffer, bytes, numImagePixels(), THRESHOLD);
 
         return bytes;
     }
