@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="server_uri">ws://192.168.0.8:8080</string>
-    <string name="image_processor_type">y-plane</string>
+    <string name="image_processor_type">thresholded</string>
     <integer name="connect_delay">1000</integer>
     <integer name="login_delay">1000</integer>
 </resources>
