@@ -6,4 +6,8 @@
 
     <color name="color_ready_to_start_button_background">#007E20</color>
     <color name="color_ready_to_start_button_text">#FFFFFF</color>
+    <color name="color_reconnect_button_background">#0085F8</color>
+    <color name="color_reconnect_button_text">#FFFFFF</color>
+    <color name="color_disconnect_button_background">#0085F8</color>
+    <color name="color_disconnect_button_text">#FFFFFF</color>
 </resources>

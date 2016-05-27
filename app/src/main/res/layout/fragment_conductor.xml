@@ -4,13 +4,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <EditText
+        android:layout_width="192dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/server_url_edit_text"
+        android:inputType="textUri"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/reconnect_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_reconnect_button_background"
+        android:text="@string/reconnect_button"
+        android:textColor="@color/color_reconnect_button_text"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="96dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/disconnect_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_disconnect_button_background"
+        android:text="@string/disconnect_button"
+        android:textColor="@color/color_disconnect_button_text"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="96dp"
+        android:layout_centerHorizontal="true"/>
+
     <Button
         android:id="@+id/ready_to_start_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="40dp"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:background="@color/color_ready_to_start_button_background"
         android:text="@string/ready_to_start_button"
         android:textColor="@color/color_ready_to_start_button_text" />
@@ -28,7 +58,7 @@
         android:text="0 players"
         android:id="@+id/player_count_text_view"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="16dp"
         android:layout_centerHorizontal="true"
         android:textColor="#ffffff"
         android:background="@android:color/black"/>
