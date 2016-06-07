@@ -186,6 +186,12 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     }
 
     @Override
+    public void onDisconnected()
+    {
+        // TODO
+    }
+
+    @Override
     public void onUnableToConnect()
     {
         setViewState(ViewStateManager.States.UNABLE_TO_CONNECT);
@@ -196,6 +202,13 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     {
         setViewState((ViewStateManager.States.READY_TO_START));
         isConnected.set(true);
+    }
+
+    @Override
+    public void onUnableToLogIn()
+    {
+        setViewState(ViewStateManager.States.UNABLE_TO_LOGIN);
+        webSocketWrapper.close();
     }
 
     @Override

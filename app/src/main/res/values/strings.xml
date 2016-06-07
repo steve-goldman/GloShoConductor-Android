@@ -3,6 +3,7 @@
     <string name="connecting_text">Connecting...</string>
     <string name="unable_to_connect_text">Unable to connect...</string>
     <string name="logging_in_text">Logging in...</string>
+    <string name="unable_to_log_in_text">Unable to login...</string>
     <string name="ready_to_start_button">Ready?</string>
     <string name="reconnect_button">Reconnect</string>
     <string name="disconnect_button">Disconnect</string>

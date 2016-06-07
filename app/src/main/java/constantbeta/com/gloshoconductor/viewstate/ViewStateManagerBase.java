@@ -12,6 +12,8 @@ abstract class ViewStateManagerBase
 {
     private static final String TAG = "ViewStateManagerBase";
 
+    private int state = -1;
+
     public void setState(int state)
     {
         if (VisibleViews.containsKey(state))
@@ -21,11 +23,18 @@ abstract class ViewStateManagerBase
             {
                 viewHolder.view.setVisibility(View.VISIBLE);
             }
+
+            this.state = state;
         }
         else
         {
             Log.e(TAG, "invalid state: " + state);
         }
+    }
+
+    public int getState()
+    {
+        return state;
     }
 
     public abstract void init(View view);

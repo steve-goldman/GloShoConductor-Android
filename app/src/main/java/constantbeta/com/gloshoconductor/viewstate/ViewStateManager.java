@@ -12,14 +12,15 @@ public class ViewStateManager extends ViewStateManagerBase
         public static final int CONNECTING            = 1;
         public static final int UNABLE_TO_CONNECT     = 2;
         public static final int LOGGING_IN            = 3;
-        public static final int READY_TO_START        = 4;
-        public static final int WAITING_TO_START      = 5;
-        public static final int STARTING_IN           = 6;
-        public static final int WAITING_FOR_COMMAND   = 7;
-        public static final int TAKING_PICTURE        = 8;
-        public static final int SENDING_PICTURE       = 9;
-        public static final int DONE                  = 10;
-        public static final int NOT_CONNECTED         = 11;
+        public static final int UNABLE_TO_LOGIN       = 4;
+        public static final int READY_TO_START        = 5;
+        public static final int WAITING_TO_START      = 6;
+        public static final int STARTING_IN           = 7;
+        public static final int WAITING_FOR_COMMAND   = 8;
+        public static final int TAKING_PICTURE        = 9;
+        public static final int SENDING_PICTURE       = 10;
+        public static final int DONE                  = 11;
+        public static final int NOT_CONNECTED         = 12;
     }
 
     private static ViewStateManager instance = new ViewStateManager();
@@ -36,6 +37,7 @@ public class ViewStateManager extends ViewStateManagerBase
     private static final ViewHolder connectingTextView        = new ViewHolder();
     private static final ViewHolder unableToConnectTextView   = new ViewHolder();
     private static final ViewHolder loggingInTextView         = new ViewHolder();
+    private static final ViewHolder unableToLogInTextView     = new ViewHolder();
     private static final ViewHolder readyButton               = new ViewHolder();
     private static final ViewHolder waitingToStartTextView    = new ViewHolder();
     private static final ViewHolder startingInTextView        = new ViewHolder();
@@ -53,6 +55,7 @@ public class ViewStateManager extends ViewStateManagerBase
         setVisibleViews(States.CONNECTING,          new ViewHolder[] { connectingTextView });
         setVisibleViews(States.UNABLE_TO_CONNECT,   new ViewHolder[] { unableToConnectTextView, serverUrl, reconnectButton });
         setVisibleViews(States.LOGGING_IN,          new ViewHolder[] { loggingInTextView, disconnectButton });
+        setVisibleViews(States.UNABLE_TO_LOGIN,     new ViewHolder[] { unableToLogInTextView, disconnectButton });
         setVisibleViews(States.READY_TO_START,      new ViewHolder[] { readyButton, playerCountTextView, disconnectButton });
         setVisibleViews(States.WAITING_TO_START,    new ViewHolder[] { waitingToStartTextView, disconnectButton });
         setVisibleViews(States.STARTING_IN,         new ViewHolder[] { startingInTextView, disconnectButton });
@@ -69,6 +72,7 @@ public class ViewStateManager extends ViewStateManagerBase
         connectingTextView.view        = view.findViewById(R.id.connecting_text_view);
         unableToConnectTextView.view   = view.findViewById(R.id.unable_to_connect_text_view);
         loggingInTextView.view         = view.findViewById(R.id.logging_in_text_view);
+        unableToLogInTextView.view     = view.findViewById(R.id.unable_to_login_text_view);
         readyButton.view               = view.findViewById(R.id.ready_to_start_button);
         waitingToStartTextView.view    = view.findViewById(R.id.waiting_to_start_text_view);
         startingInTextView.view        = view.findViewById(R.id.starting_in_text_view);
