@@ -24,6 +24,7 @@ public class WebSocketWrapper
         void onLoggedIn();
         void onUnableToLogIn();
         void onPlayerCountUpdated(int playerCount);
+        void onFoundPlayerCountUpdated(int playerCount);
         void onStartingIn(int seconds);
         void onRunning();
         void onTakePicture();
@@ -183,6 +184,10 @@ public class WebSocketWrapper
                 else if ("player-count-update".equals(messageType))
                 {
                     listener.onPlayerCountUpdated(json.getInt("playerCount"));
+                }
+                else if ("found-player-count-update".equals(messageType))
+                {
+                    listener.onFoundPlayerCountUpdated(json.getInt("foundPlayerCount"));
                 }
                 else if ("starting-in".equals(messageType))
                 {

@@ -261,6 +261,19 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     }
 
     @Override
+    public void onFoundPlayerCountUpdated(final int foundPlayerCount)
+    {
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                viewStateManager.setFoundPlayerCount(foundPlayerCount);
+            }
+        });
+    }
+
+    @Override
     public void onStartingIn(int seconds)
     {
         setStartingInSeconds(seconds);

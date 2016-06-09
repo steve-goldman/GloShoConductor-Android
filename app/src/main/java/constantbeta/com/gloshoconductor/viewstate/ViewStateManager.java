@@ -87,10 +87,31 @@ public class ViewStateManager extends ViewStateManagerBase
         disappearAll();
     }
 
+    private int playerCount;
+    private int foundPlayerCount;
+
     public void setPlayerCount(int playerCount)
     {
-        ((TextView)playerCountTextView.view).setText(
-                playerCount + (playerCount == 1 ? " player" : " players"));
+        this.playerCount = playerCount;
+        updatePlayerCountText();
+    }
+
+    public void setFoundPlayerCount(int foundPlayerCount)
+    {
+        this.foundPlayerCount = foundPlayerCount;
+        updatePlayerCountText();
+    }
+
+    private void updatePlayerCountText()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(playerCount).append(" ")
+                .append(playerCount == 1 ? " player" : " players")
+                .append(" / ")
+                .append(foundPlayerCount)
+                .append(" found");
+
+        ((TextView) playerCountTextView.view).setText(sb.toString());
     }
 
     public void setStartingInSeconds(int seconds)
