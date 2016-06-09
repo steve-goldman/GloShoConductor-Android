@@ -221,7 +221,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     @Override
     public void onStartTakingPictures()
     {
-        setViewState(ViewStateManager.States.TAKING_PICTURE);
+        setViewState(ViewStateManager.States.TAKING_PICTURES);
         takingPictures = true;
         cameraWrapper.startTakingPictures();
     }
@@ -237,11 +237,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     @Override
     public void onPictureSent()
     {
-        if (takingPictures)
-        {
-            setViewState(ViewStateManager.States.TAKING_PICTURE);
-        }
-        else
+        if (!takingPictures)
         {
             setViewState(ViewStateManager.States.WAITING_FOR_COMMAND);
         }
@@ -303,7 +299,10 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     {
         if (isConnected.get())
         {
-            setViewState(ViewStateManager.States.SENDING_PICTURE);
+            if (!takingPictures)
+            {
+                setViewState(ViewStateManager.States.SENDING_PICTURE);
+            }
             webSocketWrapper.sendProcessedImage(imageProcessor.encode(image));
         }
     }

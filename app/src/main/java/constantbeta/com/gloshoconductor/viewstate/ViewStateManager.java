@@ -18,9 +18,10 @@ public class ViewStateManager extends ViewStateManagerBase
         public static final int STARTING_IN           = 7;
         public static final int WAITING_FOR_COMMAND   = 8;
         public static final int TAKING_PICTURE        = 9;
-        public static final int SENDING_PICTURE       = 10;
-        public static final int DONE                  = 11;
-        public static final int NOT_CONNECTED         = 12;
+        public static final int TAKING_PICTURES       = 10;
+        public static final int SENDING_PICTURE       = 11;
+        public static final int DONE                  = 12;
+        public static final int NOT_CONNECTED         = 13;
     }
 
     private static ViewStateManager instance = new ViewStateManager();
@@ -61,6 +62,7 @@ public class ViewStateManager extends ViewStateManagerBase
         setVisibleViews(States.STARTING_IN,         new ViewHolder[] { startingInTextView, disconnectButton });
         setVisibleViews(States.WAITING_FOR_COMMAND, new ViewHolder[] { waitingForCommandTextView, disconnectButton });
         setVisibleViews(States.TAKING_PICTURE,      new ViewHolder[] { takingPictureTextView, disconnectButton });
+        setVisibleViews(States.TAKING_PICTURES,     new ViewHolder[] { playerCountTextView, readyButton, disconnectButton });
         setVisibleViews(States.SENDING_PICTURE,     new ViewHolder[] { sendingPictureTextView, disconnectButton });
         setVisibleViews(States.DONE,                new ViewHolder[] { doneTextView, serverUrl, reconnectButton });
         setVisibleViews(States.NOT_CONNECTED,       new ViewHolder[] { serverUrl, reconnectButton });
