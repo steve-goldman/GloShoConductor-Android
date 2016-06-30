@@ -204,6 +204,39 @@ public class CameraWrapper
         }
     };
 
+    public static Size[] getImageSizes(Activity activity)
+    {
+        CameraManager manager = (CameraManager)activity.getSystemService(Context.CAMERA_SERVICE);
+
+        try
+        {
+            for (String cameraId : manager.getCameraIdList())
+            {
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+
+                Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
+                if (null == facing || CameraCharacteristics.LENS_FACING_FRONT == facing)
+                {
+                    continue;
+                }
+
+                StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                if (null == map)
+                {
+                    continue;
+                }
+
+                return map.getOutputSizes(ImageFormat.YV12);
+            }
+        }
+        catch (CameraAccessException e)
+        {
+            e.printStackTrace();
+        }
+
+        throw new Error("could not find camera");
+    }
+
     private void setupOutputs()
     {
         try
@@ -223,24 +256,6 @@ public class CameraWrapper
                 {
                     continue;
                 }
-
-                boolean foundMatch = false;
-                for (Size size : map.getOutputSizes(ImageFormat.YV12))
-                {
-                    Log.d(TAG, String.format("camera size: %4dx%4d", size.getWidth(), size.getHeight()));
-                    if (imageSize.equals(size))
-                    {
-                        foundMatch = true;
-                    }
-                }
-
-                if (!foundMatch)
-                {
-                    Log.e(TAG, "invalid image size: " + imageSize.toString());
-                    throw new Error("bad image size: " + imageSize.toString());
-                }
-
-                Log.d(TAG, "Image size: " + imageSize.getWidth() + "x" + imageSize.getHeight());
 
                 imageReader = ImageReader.newInstance(imageSize.getWidth(), imageSize.getHeight(), ImageFormat.YV12, 2);
                 imageReader.setOnImageAvailableListener(imageAvailableListener, backgroundHandler);

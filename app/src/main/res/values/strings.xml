@@ -12,9 +12,4 @@
     <string name="taking_picture_text">Taking picture...</string>
     <string name="sending_picture_text">Sending picture...</string>
     <string name="done_text">All done!</string>
-
-    <string-array name="resolutions_array">
-        <item>176x144</item>
-        <item>640x480</item>
-    </string-array>
 </resources>

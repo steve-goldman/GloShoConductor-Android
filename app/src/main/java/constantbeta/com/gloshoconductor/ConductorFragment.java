@@ -32,6 +32,7 @@ import constantbeta.com.gloshoconductor.viewstate.ViewStateManager;
 
 public class ConductorFragment extends Fragment implements WebSocketWrapper.Listener, CameraWrapper.Listener
 {
+    @SuppressWarnings("FieldCanBeLocal")
     private final String TAG = "fragment";
 
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
@@ -94,10 +95,13 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     private void setupResolutionsSpinner(final View view)
     {
         resolutionSpinner = (Spinner)view.findViewById(R.id.resolution_spinner);
-        ArrayAdapter<CharSequence> adapter
-                = ArrayAdapter.createFromResource(getActivity(),
-                                                  R.array.resolutions_array,
-                                                  android.R.layout.simple_spinner_item);
+        Size[]   sizes    = CameraWrapper.getImageSizes(getActivity());
+        String[] strs     = new String[sizes.length];
+        for (int i = 0; i < sizes.length; i++)
+        {
+            strs[i] = sizes[sizes.length - i - 1].toString();
+        }
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(getActivity(), android.R.layout.simple_spinner_item, strs);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         resolutionSpinner.setAdapter(adapter);
 
