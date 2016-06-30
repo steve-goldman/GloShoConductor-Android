@@ -43,25 +43,26 @@ public class CameraWrapper
 
     private static final String TAG = "CameraWrapper";
 
-    private final Listener listener;
+    private final Listener          listener;
     private final ConductorFragment fragment;
-    private final Handler backgroundHandler;
-    private final Semaphore cameraLock = new Semaphore(1);
+    private final Handler           backgroundHandler;
+    private final Semaphore         cameraLock = new Semaphore(1);
 
-    private CameraManager manager;
-    private String cameraId;
-    private ImageReader imageReader;
+    private CameraManager           manager;
+    private String                  cameraId;
+    private ImageReader             imageReader;
 
-    private CameraCaptureSession captureSession;
-    private CameraDevice device;
-    private Size imageSize;
-    private Size previewSize;
+    private CameraCaptureSession    captureSession;
+    private CameraDevice            device;
+    private Size                    imageSize;
+    private Size                    previewSize;
 
-    public CameraWrapper(Listener listener, ConductorFragment fragment, Handler backgroundHandler)
+    public CameraWrapper(Listener listener, ConductorFragment fragment, Handler backgroundHandler, Size imageSize)
     {
-        this.listener = listener;
-        this.fragment = fragment;
+        this.listener          = listener;
+        this.fragment          = fragment;
         this.backgroundHandler = backgroundHandler;
+        this.imageSize         = imageSize;
     }
 
     public void open()
@@ -223,10 +224,22 @@ public class CameraWrapper
                     continue;
                 }
 
-                imageSize = Collections.max(
-                //imageSize = Collections.min(
-                        Arrays.asList(map.getOutputSizes(ImageFormat.YV12)),
-                        new CompareSizesByArea());
+                boolean foundMatch = false;
+                for (Size size : map.getOutputSizes(ImageFormat.YV12))
+                {
+                    Log.d(TAG, String.format("camera size: %4dx%4d", size.getWidth(), size.getHeight()));
+                    if (imageSize.equals(size))
+                    {
+                        foundMatch = true;
+                    }
+                }
+
+                if (!foundMatch)
+                {
+                    Log.e(TAG, "invalid image size: " + imageSize.toString());
+                    throw new Error("bad image size: " + imageSize.toString());
+                }
+
                 Log.d(TAG, "Image size: " + imageSize.getWidth() + "x" + imageSize.getHeight());
 
                 imageReader = ImageReader.newInstance(imageSize.getWidth(), imageSize.getHeight(), ImageFormat.YV12, 2);

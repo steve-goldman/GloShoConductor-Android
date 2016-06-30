@@ -7,12 +7,17 @@ import android.content.SharedPreferences;
 import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,6 +32,8 @@ import constantbeta.com.gloshoconductor.viewstate.ViewStateManager;
 
 public class ConductorFragment extends Fragment implements WebSocketWrapper.Listener, CameraWrapper.Listener
 {
+    private final String TAG = "fragment";
+
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
     private WebSocketWrapper webSocketWrapper;
@@ -46,11 +53,15 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     private boolean takingPictures;
 
     private SharedPreferences prefs;
-    private static final String SERVER_URL_KEY = "serverUrl";
+    private static final String SERVER_URL_KEY          = "serverUrl";
+    private static final String RESOLUTION_POSITION_KEY = "selectedResolution";
 
     private EditText serverUrlEditText;
 
     private final AtomicBoolean isConnected = new AtomicBoolean();
+
+    private Spinner resolutionSpinner;
+    private Size    imageSize;
 
     // package scope
     static ConductorFragment newInstance()
@@ -73,10 +84,62 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
         serverUrlEditText = (EditText)view.findViewById(R.id.server_url_edit_text);
         prefs = getActivity().getSharedPreferences("GloShoConductor", Context.MODE_PRIVATE);
         serverUrlEditText.setText(prefs.getString(SERVER_URL_KEY, getString(R.string.server_url)));
+        setupResolutionsSpinner(view);
         viewStateManager.init(view);
         view.findViewById(R.id.ready_to_start_button).setOnClickListener(readyToStartClickListener);
         view.findViewById(R.id.reconnect_button).setOnClickListener(reconnectClickListener);
         view.findViewById(R.id.disconnect_button).setOnClickListener(disconnectClickListener);
+    }
+
+    private void setupResolutionsSpinner(final View view)
+    {
+        resolutionSpinner = (Spinner)view.findViewById(R.id.resolution_spinner);
+        ArrayAdapter<CharSequence> adapter
+                = ArrayAdapter.createFromResource(getActivity(),
+                                                  R.array.resolutions_array,
+                                                  android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        resolutionSpinner.setAdapter(adapter);
+
+        int cachedPosition = prefs.getInt(RESOLUTION_POSITION_KEY, 0);
+        if (cachedPosition >= resolutionSpinner.getAdapter().getCount())
+        {
+            cachedPosition = 0;
+        }
+        resolutionSpinner.setSelection(cachedPosition);
+
+        updateImageSize();
+        resolutionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                resolutionSelected();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+            }
+        });
+    }
+
+    private void resolutionSelected()
+    {
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(RESOLUTION_POSITION_KEY, resolutionSpinner.getSelectedItemPosition());
+        editor.apply();
+
+        updateImageSize();
+        cameraWrapper.close();
+        closeWebSocketWrapper();
+        openCamera();
+    }
+
+    private void updateImageSize()
+    {
+        imageSize = Size.parseSize((String)resolutionSpinner.getSelectedItem());
+        Log.d(TAG, "set image size: " + imageSize.toString());
     }
 
     @Override
@@ -91,7 +154,6 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     {
         super.onResume();
         backgroundThread.start();
-        cameraWrapper = new CameraWrapper(this, this, backgroundThread.handler());
         openCamera();
     }
 
@@ -100,12 +162,17 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     {
         super.onPause();
         cameraWrapper.close();
+        closeWebSocketWrapper();
+        backgroundThread.stop();
+    }
+
+    private void closeWebSocketWrapper()
+    {
         if (null != webSocketWrapper)
         {
             isConnected.set(false);
             webSocketWrapper.close();
         }
-        backgroundThread.stop();
     }
 
     private final View.OnClickListener readyToStartClickListener = new View.OnClickListener()
@@ -162,6 +229,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     {
         if (cameraPermissions.has())
         {
+            cameraWrapper = new CameraWrapper(this, this, backgroundThread.handler(), imageSize);
             cameraWrapper.open();
         }
         else
