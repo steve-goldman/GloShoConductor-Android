@@ -133,7 +133,7 @@ public class WebSocketWrapper
         }
     };
 
-    public void login(Size size, String imageProcessorType)
+    public void login(Size size, String imageProcessorType, int expectedPlayerCount)
     {
         Log.d(TAG, "logging in");
         try
@@ -141,7 +141,8 @@ public class WebSocketWrapper
             final Message message = new Message("conductor-login")
                     .put("width", size.getWidth())
                     .put("height", size.getHeight())
-                    .put("imageProcessorType", imageProcessorType);
+                    .put("imageProcessorType", imageProcessorType)
+                    .put("expectedPlayerCount", expectedPlayerCount);
             message.send(webSocket);
         }
         catch (JSONException e)

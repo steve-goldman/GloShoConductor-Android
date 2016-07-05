@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -54,8 +56,9 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     private boolean takingPictures;
 
     private SharedPreferences prefs;
-    private static final String SERVER_URL_KEY          = "serverUrl";
-    private static final String RESOLUTION_POSITION_KEY = "selectedResolution";
+    private static final String SERVER_URL_KEY            = "serverUrl";
+    private static final String RESOLUTION_POSITION_KEY   = "selectedResolution";
+    private static final String EXPECTED_PLAYER_COUNT_KEY = "expectedPlayerCount";
 
     private EditText serverUrlEditText;
 
@@ -63,6 +66,8 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
 
     private Spinner resolutionSpinner;
     private Size    imageSize;
+
+    private EditText expectedPlayerCountEditText;
 
     // package scope
     static ConductorFragment newInstance()
@@ -86,6 +91,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
         prefs = getActivity().getSharedPreferences("GloShoConductor", Context.MODE_PRIVATE);
         serverUrlEditText.setText(prefs.getString(SERVER_URL_KEY, getString(R.string.server_url)));
         setupResolutionsSpinner(view);
+        setupExpectedPlayerCountEditText(view);
         viewStateManager.init(view);
         view.findViewById(R.id.ready_to_start_button).setOnClickListener(readyToStartClickListener);
         view.findViewById(R.id.reconnect_button).setOnClickListener(reconnectClickListener);
@@ -144,6 +150,39 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     {
         imageSize = Size.parseSize((String)resolutionSpinner.getSelectedItem());
         Log.d(TAG, "set image size: " + imageSize.toString());
+    }
+
+    private void setupExpectedPlayerCountEditText(View view)
+    {
+        expectedPlayerCountEditText = (EditText) view.findViewById(R.id.expected_player_count_edit_text);
+        expectedPlayerCountEditText.setText(String.valueOf(prefs.getInt(EXPECTED_PLAYER_COUNT_KEY,
+                                                                        100)));
+        expectedPlayerCountEditText.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                Log.d(TAG, "text changed");
+                final SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt(EXPECTED_PLAYER_COUNT_KEY, getExpectedPlayerCount());
+                editor.apply();
+            }
+        });
+    }
+
+    private int getExpectedPlayerCount()
+    {
+        return Integer.parseInt(expectedPlayerCountEditText.getText().toString());
     }
 
     @Override
@@ -251,7 +290,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
             @Override
             public void run()
             {
-                webSocketWrapper.login(cameraWrapper.getImageSize(), imageProcessorType);
+                webSocketWrapper.login(cameraWrapper.getImageSize(), imageProcessorType, getExpectedPlayerCount());
             }
         }, getResources().getInteger(R.integer.login_delay));
 
