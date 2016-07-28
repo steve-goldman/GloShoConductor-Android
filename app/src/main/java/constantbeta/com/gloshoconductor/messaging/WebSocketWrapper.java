@@ -95,12 +95,19 @@ public class WebSocketWrapper
         }
     }
 
+    private static final int TIMESTAMP_BUFFER_SIZE = 8;
+    private final ByteBuffer timestampBuffer       = ByteBuffer.allocate(TIMESTAMP_BUFFER_SIZE);
+
     public void sendProcessedImage(ByteBuffer bytes)
     {
         Log.d(TAG, "sending processed image");
+
+        timestampBuffer.putLong(0, System.currentTimeMillis());
         // note: the library calls the last argument "len" but uses it as
         // the index of one past the last element
-        webSocket.send(bytes.array(), bytes.arrayOffset(), bytes.remaining() + bytes.arrayOffset());
+        webSocket.send(timestampBuffer.array(), timestampBuffer.arrayOffset(), timestampBuffer.arrayOffset() + TIMESTAMP_BUFFER_SIZE);
+        webSocket.send(bytes.array(),           bytes.arrayOffset(),           bytes.arrayOffset() + bytes.remaining());
+
         webSocket.setWriteableCallback(new WritableCallback()
         {
             @Override
