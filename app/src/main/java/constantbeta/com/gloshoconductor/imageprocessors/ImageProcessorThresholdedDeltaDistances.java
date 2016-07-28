@@ -12,8 +12,6 @@ class ImageProcessorThresholdedDeltaDistances extends ImageProcessorBase impleme
     private static final      String TAG        = "IPDeltaDistances";
     private final ByteBuffer  bytes;
 
-    private static final int  THRESHOLD    = 240;
-
     ImageProcessorThresholdedDeltaDistances(Size size)
     {
         super(size);

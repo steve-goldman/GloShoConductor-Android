@@ -12,8 +12,6 @@ class ImageProcessorThresholdedBits extends ImageProcessorBase implements ImageP
     private static final String TAG        = "IPThresholdedBits";
     private final ByteBuffer    bytes;
 
-    private static final int THRESHOLD     = 240;
-
     ImageProcessorThresholdedBits(Size size)
     {
         super(size);
