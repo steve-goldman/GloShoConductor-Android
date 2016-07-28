@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.text.ParseException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -172,7 +173,6 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
             @Override
             public void afterTextChanged(Editable s)
             {
-                Log.d(TAG, "text changed");
                 final SharedPreferences.Editor editor = prefs.edit();
                 editor.putInt(EXPECTED_PLAYER_COUNT_KEY, getExpectedPlayerCount());
                 editor.apply();
@@ -182,7 +182,14 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
 
     private int getExpectedPlayerCount()
     {
-        return Integer.parseInt(expectedPlayerCountEditText.getText().toString());
+        try
+        {
+            return Integer.parseInt(expectedPlayerCountEditText.getText().toString());
+        }
+        catch (NumberFormatException e)
+        {
+            return 100;
+        }
     }
 
     @Override
