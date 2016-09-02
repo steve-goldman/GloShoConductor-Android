@@ -23,6 +23,7 @@ import android.widget.Spinner;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import constantbeta.com.gloshoconductor.camera.CameraPermissions;
@@ -59,6 +60,10 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     private static final String SERVER_URL_KEY            = "serverUrl";
     private static final String RESOLUTION_POSITION_KEY   = "selectedResolution";
     private static final String EXPECTED_PLAYER_COUNT_KEY = "expectedPlayerCount";
+    private static final String INSTALLATION_ID_KEY       = "installationId";
+
+    private String installationId;
+
 
     private EditText serverUrlEditText;
 
@@ -92,6 +97,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
         serverUrlEditText.setText(prefs.getString(SERVER_URL_KEY, getString(R.string.server_url)));
         setupResolutionsSpinner(view);
         setupExpectedPlayerCountEditText(view);
+        setupInstallationId();
         viewStateManager.init(view);
         view.findViewById(R.id.ready_to_start_button).setOnClickListener(readyToStartClickListener);
         view.findViewById(R.id.reconnect_button).setOnClickListener(reconnectClickListener);
@@ -177,6 +183,22 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
                 editor.apply();
             }
         });
+    }
+
+    private void setupInstallationId()
+    {
+        installationId = prefs.getString(INSTALLATION_ID_KEY, null);
+
+        if (null != installationId)
+        {
+            return;
+        }
+
+        installationId = UUID.randomUUID().toString();
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(INSTALLATION_ID_KEY, installationId);
+        editor.apply();
     }
 
     private int getExpectedPlayerCount()
@@ -427,7 +449,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     private void connect()
     {
         setViewState(ViewStateManager.States.CONNECTING);
-        webSocketWrapper = new WebSocketWrapper(serverUrlEditText.getText().toString(), this);
+        webSocketWrapper = new WebSocketWrapper(serverUrlEditText.getText().toString(), installationId, this);
         timer.schedule(new TimerTask()
         {
             @Override

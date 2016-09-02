@@ -40,10 +40,13 @@ public class WebSocketWrapper
     private WebSocket webSocket;
     private final Listener listener;
 
-    public WebSocketWrapper(String uri, Listener listener)
+    private final LoginMessageFactory loginMessageFactory;
+
+    public WebSocketWrapper(String uri, String installationId, Listener listener)
     {
         this.uri = uri;
         this.listener = listener;
+        this.loginMessageFactory = new LoginMessageFactory(installationId);
     }
 
     public void open()
@@ -145,11 +148,7 @@ public class WebSocketWrapper
         Log.d(TAG, "logging in");
         try
         {
-            final Message message = new Message("conductor-login")
-                    .put("width", size.getWidth())
-                    .put("height", size.getHeight())
-                    .put("imageProcessorType", imageProcessorType)
-                    .put("expectedPlayerCount", expectedPlayerCount);
+            final Message message = loginMessageFactory.create(size, imageProcessorType, expectedPlayerCount);
             message.send(webSocket);
         }
         catch (JSONException e)
