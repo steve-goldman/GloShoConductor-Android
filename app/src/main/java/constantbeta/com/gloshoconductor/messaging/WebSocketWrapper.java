@@ -60,7 +60,7 @@ public class WebSocketWrapper
         AsyncHttpClient.getDefaultInstance().websocket(uri, "glosho-conductor", connectedCallback);
     }
 
-    public void close()
+    public synchronized void close()
     {
         if (null != webSocket)
         {
@@ -70,7 +70,7 @@ public class WebSocketWrapper
         }
     }
 
-    public void sendReady()
+    public synchronized void sendReady()
     {
         Log.d(TAG, "sending ready");
         try
@@ -84,7 +84,7 @@ public class WebSocketWrapper
         }
     }
 
-    private void sendPong()
+    private synchronized void sendPong()
     {
         Log.d(TAG, "sending pong");
         try
@@ -101,8 +101,14 @@ public class WebSocketWrapper
     private static final int TIMESTAMP_BUFFER_SIZE = 8;
     private final ByteBuffer timestampBuffer       = ByteBuffer.allocate(TIMESTAMP_BUFFER_SIZE);
 
-    public void sendProcessedImage(ByteBuffer bytes)
+    public synchronized void sendProcessedImage(ByteBuffer bytes)
     {
+        if (webSocket == null)
+        {
+            // in case we just closed but the camera hasn't figured that out yet
+            return;
+        }
+
         Log.d(TAG, "sending processed image");
 
         timestampBuffer.putLong(0, System.currentTimeMillis());
@@ -145,6 +151,12 @@ public class WebSocketWrapper
 
     public void login(Size size, String imageProcessorType, int threshold, int expectedPlayerCount)
     {
+        if (webSocket == null)
+        {
+            // in case we disconnected before logging in
+            return;
+        }
+
         Log.d(TAG, "logging in");
         try
         {
