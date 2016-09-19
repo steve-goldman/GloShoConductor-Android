@@ -1,35 +1,35 @@
 package constantbeta.com.gloshoconductor.imageprocessors;
 
+import android.content.Context;
 import android.util.Size;
+
+import constantbeta.com.gloshoconductor.R;
 
 public class ImageProcessorFactory
 {
-    public class Types
+    public static ImageProcessor create(Context context, String type, Size size, int threshold)
     {
-        public static final String YPlane                    = "y-plane";
-        public static final String Thresholded               = "thresholded";
-        public static final String ThresholdedBits           = "thresholded-bits";
-        public static final String ThresholdedDeltaDistances = "thresholded-delta-distances";
-    }
-
-    public static ImageProcessor create(String type, Size size)
-    {
-        if (Types.YPlane.equals(type))
+        if (getKey(context, R.string.y_plane).equals(type))
         {
             return new ImageProcessorYPlane(size);
         }
-        else if (Types.Thresholded.equals(type))
+        else if (getKey(context, R.string.thresholded).equals(type))
         {
-            return new ImageProcessorThresholded(size);
+            return new ImageProcessorThresholded(size, threshold);
         }
-        else if (Types.ThresholdedBits.equals(type))
+        else if (getKey(context, R.string.thresholded_bits).equals(type))
         {
-            return new ImageProcessorThresholdedBits(size);
+            return new ImageProcessorThresholdedBits(size, threshold);
         }
-        else if (Types.ThresholdedDeltaDistances.equals(type))
+        else if (getKey(context, R.string.thresholded_delta_distances).equals(type))
         {
-            return new ImageProcessorThresholdedDeltaDistances(size);
+            return new ImageProcessorThresholdedDeltaDistances(size, threshold);
         }
         throw new IllegalArgumentException("unexpected image processor type: " + type);
+    }
+
+    private static String getKey(Context context, int id)
+    {
+        return context.getResources().getString(id);
     }
 }

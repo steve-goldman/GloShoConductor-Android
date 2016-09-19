@@ -11,11 +11,13 @@ class ImageProcessorThresholdedBits extends ImageProcessorBase implements ImageP
 {
     private static final String TAG        = "IPThresholdedBits";
     private final ByteBuffer    bytes;
+    private final int           threshold;
 
-    ImageProcessorThresholdedBits(Size size)
+    ImageProcessorThresholdedBits(Size size, int threshold)
     {
         super(size);
-        this.bytes = ByteBuffer.allocateDirect(numImagePixels() / 8);
+        this.threshold = threshold;
+        this.bytes     = ByteBuffer.allocateDirect(numImagePixels() / 8);
     }
 
     @Override
@@ -24,7 +26,7 @@ class ImageProcessorThresholdedBits extends ImageProcessorBase implements ImageP
         Log.d(TAG, "processing");
 
         final ByteBuffer srcBuffer = image.getPlanes()[0].getBuffer();
-        ImageProcessorNative.encodeThresholdedBits(srcBuffer, bytes, numImagePixels(), THRESHOLD);
+        ImageProcessorNative.encodeThresholdedBits(srcBuffer, bytes, numImagePixels(), threshold);
 
         return bytes;
     }

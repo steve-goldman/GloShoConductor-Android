@@ -143,12 +143,15 @@ public class WebSocketWrapper
         }
     };
 
-    public void login(Size size, String imageProcessorType, int expectedPlayerCount)
+    public void login(Size size, String imageProcessorType, int threshold, int expectedPlayerCount)
     {
         Log.d(TAG, "logging in");
         try
         {
-            final Message message = loginMessageFactory.create(size, imageProcessorType, expectedPlayerCount);
+            final Message message = loginMessageFactory.create(size,
+                                                               imageProcessorType,
+                                                               threshold,
+                                                               expectedPlayerCount);
             message.send(webSocket);
         }
         catch (JSONException e)

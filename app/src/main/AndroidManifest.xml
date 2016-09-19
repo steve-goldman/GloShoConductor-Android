@@ -22,6 +22,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".preferences.SettingsActivity"
+            android:label="Settings"
+            android:theme="@android:style/Theme.Holo">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ConductorActivity" />
+        </activity>
+
     </application>
 
 </manifest>

@@ -16,12 +16,16 @@ public class LoginMessageFactory
         this.installationId = installationId;
     }
 
-    public Message create(Size size, String imageProcessorType, int expectedPlayerCount) throws JSONException
+    public Message create(Size size,
+                          String imageProcessorType,
+                          int threshold,
+                          int expectedPlayerCount) throws JSONException
     {
         return new Message("conductor-login")
                 .put("width", size.getWidth())
                 .put("height", size.getHeight())
                 .put("imageProcessorType", imageProcessorType)
+                .put("threshold", threshold)
                 .put("expectedPlayerCount", expectedPlayerCount)
                 // common to all platforms
                 .put("id",           installationId)

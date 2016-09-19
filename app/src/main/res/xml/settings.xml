@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:defaultValue="@string/server_url_default"
+        android:key="@string/server_url_key"
+        android:summary="@string/server_url_summary"
+        android:title="@string/server_url_title" />
+
+    <ListPreference
+        android:key="@string/resolution_key"
+        android:title="@string/resolution_title"
+        android:summary="@string/resolution_summary"
+        android:defaultValue="@string/resolution_default" />
+
+    <ListPreference
+        android:key="@string/image_processor_type_key"
+        android:title="@string/image_processor_type_title"
+        android:summary="@string/image_processor_type_summary"
+        android:defaultValue="@string/image_processor_type_default"
+        android:entries="@array/image_processor_types_display"
+        android:entryValues="@array/image_processor_types" />
+
+    <EditTextPreference
+        android:key="@string/threshold_key"
+        android:title="@string/threshold_title"
+        android:summary="@string/threshold_summary"
+        android:defaultValue="@string/threshold_default"
+        android:inputType="number"/>
+
+    <EditTextPreference
+        android:key="@string/expected_player_count_key"
+        android:title="@string/expected_player_count_title"
+        android:summary="@string/expected_player_count_summary"
+        android:defaultValue="@string/expected_player_count_default"
+        android:inputType="number"/>
+
+</PreferenceScreen>

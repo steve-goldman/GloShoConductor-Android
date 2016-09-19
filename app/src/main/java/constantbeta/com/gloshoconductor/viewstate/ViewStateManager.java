@@ -47,14 +47,14 @@ public class ViewStateManager extends ViewStateManagerBase
     private static final ViewHolder sendingPictureTextView    = new ViewHolder();
     private static final ViewHolder playerCountTextView       = new ViewHolder();
     private static final ViewHolder doneTextView              = new ViewHolder();
-    private static final ViewHolder serverUrl                 = new ViewHolder();
     private static final ViewHolder reconnectButton           = new ViewHolder();
     private static final ViewHolder disconnectButton          = new ViewHolder();
+    private static final ViewHolder settingsButton            = new ViewHolder();
 
     static
     {
         setVisibleViews(States.CONNECTING,          new ViewHolder[] { connectingTextView });
-        setVisibleViews(States.UNABLE_TO_CONNECT,   new ViewHolder[] { unableToConnectTextView, serverUrl, reconnectButton });
+        setVisibleViews(States.UNABLE_TO_CONNECT,   new ViewHolder[] { unableToConnectTextView, reconnectButton, settingsButton });
         setVisibleViews(States.LOGGING_IN,          new ViewHolder[] { loggingInTextView, disconnectButton });
         setVisibleViews(States.UNABLE_TO_LOGIN,     new ViewHolder[] { unableToLogInTextView, disconnectButton });
         setVisibleViews(States.READY_TO_START,      new ViewHolder[] { readyButton, playerCountTextView, disconnectButton });
@@ -64,8 +64,8 @@ public class ViewStateManager extends ViewStateManagerBase
         setVisibleViews(States.TAKING_PICTURE,      new ViewHolder[] { takingPictureTextView, disconnectButton });
         setVisibleViews(States.TAKING_PICTURES,     new ViewHolder[] { playerCountTextView, readyButton, disconnectButton });
         setVisibleViews(States.SENDING_PICTURE,     new ViewHolder[] { sendingPictureTextView, disconnectButton });
-        setVisibleViews(States.DONE,                new ViewHolder[] { doneTextView, serverUrl, reconnectButton });
-        setVisibleViews(States.NOT_CONNECTED,       new ViewHolder[] { serverUrl, reconnectButton });
+        setVisibleViews(States.DONE,                new ViewHolder[] { doneTextView, reconnectButton, settingsButton });
+        setVisibleViews(States.NOT_CONNECTED,       new ViewHolder[] { reconnectButton, settingsButton });
     }
 
     @Override
@@ -83,9 +83,9 @@ public class ViewStateManager extends ViewStateManagerBase
         sendingPictureTextView.view    = view.findViewById(R.id.sending_picture_text_view);
         playerCountTextView.view       = view.findViewById(R.id.player_count_text_view);
         doneTextView.view              = view.findViewById(R.id.done_text_view);
-        serverUrl.view                 = view.findViewById(R.id.server_url_edit_text);
         reconnectButton.view           = view.findViewById(R.id.reconnect_button);
         disconnectButton.view          = view.findViewById(R.id.disconnect_button);
+        settingsButton.view            = view.findViewById(R.id.settings_button);
         disappearAll();
     }
 
