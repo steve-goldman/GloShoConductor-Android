@@ -2,28 +2,18 @@ package constantbeta.com.gloshoconductor;
 
 
 import android.app.Fragment;
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import constantbeta.com.gloshoconductor.camera.CameraPermissions;
@@ -31,13 +21,12 @@ import constantbeta.com.gloshoconductor.camera.CameraWrapper;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessor;
 import constantbeta.com.gloshoconductor.imageprocessors.ImageProcessorFactory;
 import constantbeta.com.gloshoconductor.messaging.WebSocketWrapper;
+import constantbeta.com.gloshoconductor.preferences.PreferencesWrapper;
+import constantbeta.com.gloshoconductor.preferences.SettingsActivity;
 import constantbeta.com.gloshoconductor.viewstate.ViewStateManager;
 
 public class ConductorFragment extends Fragment implements WebSocketWrapper.Listener, CameraWrapper.Listener
 {
-    @SuppressWarnings("FieldCanBeLocal")
-    private final String TAG = "fragment";
-
     private final BackgroundThread backgroundThread = new BackgroundThread("CameraBackground");
 
     private WebSocketWrapper webSocketWrapper;
@@ -51,28 +40,13 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     private TextureView textureView;
     private final ViewStateManager viewStateManager = ViewStateManager.get();
 
-    private String imageProcessorType;
     private ImageProcessor imageProcessor;
 
     private boolean takingPictures;
 
-    private SharedPreferences prefs;
-    private static final String SERVER_URL_KEY            = "serverUrl";
-    private static final String RESOLUTION_POSITION_KEY   = "selectedResolution";
-    private static final String EXPECTED_PLAYER_COUNT_KEY = "expectedPlayerCount";
-    private static final String INSTALLATION_ID_KEY       = "installationId";
-
-    private String installationId;
-
-
-    private EditText serverUrlEditText;
+    private PreferencesWrapper prefs;
 
     private final AtomicBoolean isConnected = new AtomicBoolean();
-
-    private Spinner resolutionSpinner;
-    private Size    imageSize;
-
-    private EditText expectedPlayerCountEditText;
 
     // package scope
     static ConductorFragment newInstance()
@@ -90,127 +64,14 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     public void onViewCreated(final View view, Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
-        imageProcessorType = getString(R.string.image_processor_type);
         textureView = (TextureView)view.findViewById(R.id.texture);
-        serverUrlEditText = (EditText)view.findViewById(R.id.server_url_edit_text);
-        prefs = getActivity().getSharedPreferences("GloShoConductor", Context.MODE_PRIVATE);
-        serverUrlEditText.setText(prefs.getString(SERVER_URL_KEY, getString(R.string.server_url)));
-        setupResolutionsSpinner(view);
-        setupExpectedPlayerCountEditText(view);
-        setupInstallationId();
+        prefs = new PreferencesWrapper(getActivity(),
+                                       PreferenceManager.getDefaultSharedPreferences(getActivity()));
         viewStateManager.init(view);
         view.findViewById(R.id.ready_to_start_button).setOnClickListener(readyToStartClickListener);
         view.findViewById(R.id.reconnect_button).setOnClickListener(reconnectClickListener);
         view.findViewById(R.id.disconnect_button).setOnClickListener(disconnectClickListener);
-    }
-
-    private void setupResolutionsSpinner(final View view)
-    {
-        resolutionSpinner = (Spinner)view.findViewById(R.id.resolution_spinner);
-        Size[]   sizes    = CameraWrapper.getImageSizes(getActivity());
-        String[] strs     = new String[sizes.length];
-        for (int i = 0; i < sizes.length; i++)
-        {
-            strs[i] = sizes[sizes.length - i - 1].toString();
-        }
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(getActivity(), android.R.layout.simple_spinner_item, strs);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        resolutionSpinner.setAdapter(adapter);
-
-        int cachedPosition = prefs.getInt(RESOLUTION_POSITION_KEY, 0);
-        if (cachedPosition >= resolutionSpinner.getAdapter().getCount())
-        {
-            cachedPosition = 0;
-        }
-        resolutionSpinner.setSelection(cachedPosition);
-
-        updateImageSize();
-        resolutionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-            {
-                resolutionSelected();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent)
-            {
-            }
-        });
-    }
-
-    private void resolutionSelected()
-    {
-        final SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(RESOLUTION_POSITION_KEY, resolutionSpinner.getSelectedItemPosition());
-        editor.apply();
-
-        updateImageSize();
-        cameraWrapper.close();
-        closeWebSocketWrapper();
-        openCamera();
-    }
-
-    private void updateImageSize()
-    {
-        imageSize = Size.parseSize((String)resolutionSpinner.getSelectedItem());
-        Log.d(TAG, "set image size: " + imageSize.toString());
-    }
-
-    private void setupExpectedPlayerCountEditText(View view)
-    {
-        expectedPlayerCountEditText = (EditText) view.findViewById(R.id.expected_player_count_edit_text);
-        expectedPlayerCountEditText.setText(String.valueOf(prefs.getInt(EXPECTED_PLAYER_COUNT_KEY,
-                                                                        100)));
-        expectedPlayerCountEditText.addTextChangedListener(new TextWatcher()
-        {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after)
-            {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
-            {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-                final SharedPreferences.Editor editor = prefs.edit();
-                editor.putInt(EXPECTED_PLAYER_COUNT_KEY, getExpectedPlayerCount());
-                editor.apply();
-            }
-        });
-    }
-
-    private void setupInstallationId()
-    {
-        installationId = prefs.getString(INSTALLATION_ID_KEY, null);
-
-        if (null != installationId)
-        {
-            return;
-        }
-
-        installationId = UUID.randomUUID().toString();
-
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(INSTALLATION_ID_KEY, installationId);
-        editor.apply();
-    }
-
-    private int getExpectedPlayerCount()
-    {
-        try
-        {
-            return Integer.parseInt(expectedPlayerCountEditText.getText().toString());
-        }
-        catch (NumberFormatException e)
-        {
-            return 100;
-        }
+        view.findViewById(R.id.settings_button).setOnClickListener(settingsClickListener);
     }
 
     @Override
@@ -261,12 +122,6 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
         @Override
         public void onClick(View v)
         {
-            final SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(SERVER_URL_KEY, serverUrlEditText.getText().toString());
-            editor.apply();
-            final InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            //noinspection ConstantConditions
-            imm.hideSoftInputFromWindow(serverUrlEditText.getWindowToken(), 0);
             connect();
         }
     };
@@ -279,6 +134,15 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
             isConnected.set(false);
             webSocketWrapper.close();
             setViewState(ViewStateManager.States.NOT_CONNECTED);
+        }
+    };
+
+    private final View.OnClickListener settingsClickListener = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            startActivity(new Intent(getActivity(), SettingsActivity.class));
         }
     };
 
@@ -300,7 +164,9 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     {
         if (cameraPermissions.has())
         {
-            cameraWrapper = new CameraWrapper(this, this, backgroundThread.handler(), imageSize);
+            cameraWrapper = new CameraWrapper(this, this,
+                                              backgroundThread.handler(),
+                                              prefs.getResolution());
             cameraWrapper.open();
         }
         else
@@ -318,7 +184,10 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
             @Override
             public void run()
             {
-                webSocketWrapper.login(cameraWrapper.getImageSize(), imageProcessorType, getExpectedPlayerCount());
+                webSocketWrapper.login(cameraWrapper.getImageSize(),
+                                       prefs.getImageProcessorType(),
+                                       prefs.getThreshold(),
+                                       prefs.getExpectedPlayerCount());
             }
         }, getResources().getInteger(R.integer.login_delay));
 
@@ -429,7 +298,10 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     @Override
     public void onCameraOpened()
     {
-        imageProcessor = ImageProcessorFactory.create(imageProcessorType, cameraWrapper.getImageSize());
+        imageProcessor = ImageProcessorFactory.create(getActivity(),
+                                                      prefs.getImageProcessorType(),
+                                                      cameraWrapper.getImageSize(),
+                                                      prefs.getThreshold());
         connect();
     }
 
@@ -449,7 +321,9 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     private void connect()
     {
         setViewState(ViewStateManager.States.CONNECTING);
-        webSocketWrapper = new WebSocketWrapper(serverUrlEditText.getText().toString(), installationId, this);
+        webSocketWrapper = new WebSocketWrapper(prefs.getServerUrl(),
+                                                prefs.getInstallationId(),
+                                                this);
         timer.schedule(new TimerTask()
         {
             @Override

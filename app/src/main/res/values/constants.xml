@@ -1,7 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="server_url">ws://192.168.0.8:8080</string>
+    <string name="server_url_key">serverUrl</string>
+    <string name="server_url_default">ws://glosho.herokuapp.com</string>
+    <string name="server_url_title">Server Url</string>
+    <string name="server_url_summary"> </string>
+
+    <string name="resolution_key">resolution</string>
+    <string name="resolution_default">0</string>
+    <string name="resolution_title">Conductor Image Resolution</string>
+    <string name="resolution_summary"> </string>
+
+    <string name="image_processor_type_key">image_processor_type</string>
+    <string name="image_processor_type_default">@string/y_plane</string>
+    <string name="image_processor_type_title">Image Processor Type</string>
+    <string name="image_processor_type_summary">Compression strategy</string>
+
+    <string name="threshold_key">Threshold</string>
+    <string name="threshold_default">200</string>
+    <string name="threshold_title">Threshold</string>
+    <string name="threshold_summary">From 0 to 255</string>
+
+    <string name="expected_player_count_key">expected_player_count</string>
+    <string name="expected_player_count_default">20</string>
+    <string name="expected_player_count_title">Expected Player Count</string>
+    <string name="expected_player_count_summary">Rough upper bound</string>
+
+    <string name="installation_id_key">installation_id</string>
+
     <string name="image_processor_type">thresholded-delta-distances</string>
     <integer name="connect_delay">1000</integer>
     <integer name="login_delay">1000</integer>
+
+    <string name="y_plane">y-plane</string>
+    <string name="thresholded">thresholded</string>
+    <string name="thresholded_bits">thresholded-bits</string>
+    <string name="thresholded_delta_distances">thresholded-delta-distances</string>
+
+    <array name="image_processor_types">
+        <item>@string/y_plane</item>
+        <item>@string/thresholded</item>
+        <item>@string/thresholded_bits</item>
+        <item>@string/thresholded_delta_distances</item>
+    </array>
+
+    <string name="y_plane_display">Y-Plane</string>
+    <string name="thresholded_display">Thresholded</string>
+    <string name="thresholded_bits_display">Thresholded Bits</string>
+    <string name="thresholded_delta_distances_display">Thresholded Delta Distances</string>
+
+    <array name="image_processor_types_display">
+        <item>@string/y_plane_display</item>
+        <item>@string/thresholded_display</item>
+        <item>@string/thresholded_bits_display</item>
+        <item>@string/thresholded_delta_distances_display</item>
+    </array>
+
 </resources>

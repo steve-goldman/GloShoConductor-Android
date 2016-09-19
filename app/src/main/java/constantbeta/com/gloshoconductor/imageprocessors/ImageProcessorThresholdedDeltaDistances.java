@@ -11,11 +11,13 @@ class ImageProcessorThresholdedDeltaDistances extends ImageProcessorBase impleme
 {
     private static final      String TAG        = "IPDeltaDistances";
     private final ByteBuffer  bytes;
+    private final int         threshold;
 
-    ImageProcessorThresholdedDeltaDistances(Size size)
+    ImageProcessorThresholdedDeltaDistances(Size size, int threshold)
     {
         super(size);
-        this.bytes = ByteBuffer.allocateDirect(numImagePixels());
+        this.threshold = threshold;
+        this.bytes     = ByteBuffer.allocateDirect(numImagePixels());
     }
 
     @Override
@@ -24,7 +26,11 @@ class ImageProcessorThresholdedDeltaDistances extends ImageProcessorBase impleme
         Log.d(TAG, "processing");
 
         final ByteBuffer srcBuffer = image.getPlanes()[0].getBuffer();
-        bytes.limit(ImageProcessorNative.encodeThresholdedDeltaDistances(srcBuffer, bytes, numImagePixels(), THRESHOLD));
+        bytes.limit(
+                ImageProcessorNative.encodeThresholdedDeltaDistances(srcBuffer,
+                                                                     bytes,
+                                                                     numImagePixels(),
+                                                                     threshold));
         return bytes;
     }
 }
