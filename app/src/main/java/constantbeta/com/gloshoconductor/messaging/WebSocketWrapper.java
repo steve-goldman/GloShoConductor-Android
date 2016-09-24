@@ -60,7 +60,7 @@ public class WebSocketWrapper
         AsyncHttpClient.getDefaultInstance().websocket(uri, "glosho-conductor", connectedCallback);
     }
 
-    public synchronized void close()
+    public void close()
     {
         if (null != webSocket)
         {
@@ -70,13 +70,13 @@ public class WebSocketWrapper
         }
     }
 
-    public synchronized void sendReady()
+    public void sendReady()
     {
         Log.d(TAG, "sending ready");
         try
         {
             final Message message = new Message("ready-to-start");
-            message.send(webSocket);
+            safeSend(message);
         }
         catch (JSONException e)
         {
@@ -84,13 +84,13 @@ public class WebSocketWrapper
         }
     }
 
-    private synchronized void sendPong()
+    private void sendPong()
     {
         Log.d(TAG, "sending pong");
         try
         {
             final Message message = new Message("pong");
-            message.send(webSocket);
+            safeSend(message);
         }
         catch (JSONException e)
         {
@@ -101,7 +101,7 @@ public class WebSocketWrapper
     private static final int TIMESTAMP_BUFFER_SIZE = 8;
     private final ByteBuffer timestampBuffer       = ByteBuffer.allocate(TIMESTAMP_BUFFER_SIZE);
 
-    public synchronized void sendProcessedImage(ByteBuffer bytes)
+    public void sendProcessedImage(ByteBuffer bytes)
     {
         if (webSocket == null)
         {
@@ -114,8 +114,10 @@ public class WebSocketWrapper
         timestampBuffer.putLong(0, System.currentTimeMillis());
         // note: the library calls the last argument "len" but uses it as
         // the index of one past the last element
-        webSocket.send(timestampBuffer.array(), timestampBuffer.arrayOffset(), timestampBuffer.arrayOffset() + TIMESTAMP_BUFFER_SIZE);
-        webSocket.send(bytes.array(),           bytes.arrayOffset(),           bytes.arrayOffset() + bytes.remaining());
+        safeSend(timestampBuffer.array(),
+                 timestampBuffer.arrayOffset(),
+                 timestampBuffer.arrayOffset() + TIMESTAMP_BUFFER_SIZE);
+        safeSend(bytes.array(), bytes.arrayOffset(), bytes.arrayOffset() + bytes.remaining());
 
         webSocket.setWriteableCallback(new WritableCallback()
         {
@@ -164,7 +166,7 @@ public class WebSocketWrapper
                                                                imageProcessorType,
                                                                threshold,
                                                                expectedPlayerCount);
-            message.send(webSocket);
+            safeSend(message);
         }
         catch (JSONException e)
         {
@@ -243,4 +245,28 @@ public class WebSocketWrapper
             listener.onDisconnected();
         }
     };
+
+    private void safeSend(Message message)
+    {
+        try
+        {
+            message.send(webSocket);
+        }
+        catch (NullPointerException e)
+        {
+            // web socket was closed after we checked but before we sent
+        }
+    }
+
+    private void safeSend(byte[] array, int offset, int endOffset)
+    {
+        try
+        {
+            webSocket.send(array, offset, endOffset);
+        }
+        catch (NullPointerException e)
+        {
+            // web socket was closed after we checked but before we sent
+        }
+    }
 }

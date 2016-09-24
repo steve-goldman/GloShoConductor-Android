@@ -104,6 +104,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
         {
             isConnected.set(false);
             webSocketWrapper.close();
+            stopTakingPictures();
         }
     }
 
@@ -196,7 +197,8 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     @Override
     public void onDisconnected()
     {
-        // TODO
+        setViewState(ViewStateManager.States.NOT_CONNECTED);
+        stopTakingPictures();
     }
 
     @Override
@@ -237,8 +239,7 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
     @Override
     public void onStopTakingPictures()
     {
-        cameraWrapper.stopTakingPictures();
-        takingPictures = false;
+        stopTakingPictures();
         setViewState(ViewStateManager.States.DONE);
     }
 
@@ -357,5 +358,11 @@ public class ConductorFragment extends Fragment implements WebSocketWrapper.List
                 viewStateManager.setState(ViewStateManager.States.STARTING_IN);
             }
         });
+    }
+
+    private void stopTakingPictures()
+    {
+        cameraWrapper.stopTakingPictures();
+        takingPictures = false;
     }
 }
